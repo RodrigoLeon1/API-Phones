@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LineService {
@@ -37,15 +38,19 @@ public class LineService {
     }
 
     public List<Line> findAll() {
-        return lineRepository.findAll();
+        return lineRepository
+                .findAll()
+                .stream()
+                .filter(Line::isEnabled)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Line> findById(Long id) throws LineNotExistException {
+    public Line findById(Long id) throws LineNotExistException {
         Optional<Line> line = lineRepository.findById(id);
-        if (line.isEmpty()) {
+        if (line.isEmpty() || line.get().isDisabled()) {
             throw new LineNotExistException();
         }
-        return lineRepository.findById(id);
+        return line.get();
     }
 
     public List<Line> findByUserId(Long id) throws UserNotExistException {
@@ -54,14 +59,6 @@ public class LineService {
             throw new UserNotExistException();
         }
         return lineRepository.findAllByUserId(id);
-    }
-
-    public int disableById(Long id) throws LineNotExistException {
-        Optional<Line> line = lineRepository.findById(id);
-        if (line.isEmpty()) {
-            throw new LineNotExistException();
-        }
-        return lineRepository.disableById(id);
     }
 
     public Line updateLineStatusByIdLine(Long id,

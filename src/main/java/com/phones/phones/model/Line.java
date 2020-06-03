@@ -53,4 +53,16 @@ public class Line {
     @OneToMany(mappedBy = "destinationLine")
     private List<Call> destinationCalls;
 
+    public boolean isEnabled() {
+        return this.status.toString().equals("ENABLED");
+    }
+
+    public boolean isDisabled() {
+        return this.status.toString().equals("DISABLED");
+    }
+
+    public boolean isSuspended() {
+        return this.status.toString().equals("SUSPENDED");
+    }
+
 }

@@ -2,10 +2,8 @@ package com.phones.phones.repository;
 
 import com.phones.phones.model.Line;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,15 +27,5 @@ public interface LineRepository extends JpaRepository<Line, Long> {
             nativeQuery = true
     )
     List<Line> findAllByUserId(Long id);
-
-    @Transactional
-    @Modifying
-    @Query(
-            value = "UPDATE `lines` l " +
-                    "SET l.is_active = false " +
-                    "WHERE l.id = ?1",
-            nativeQuery = true
-    )
-    int disableById(Long id);
 
 }

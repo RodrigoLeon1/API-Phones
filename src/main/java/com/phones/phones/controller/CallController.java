@@ -1,5 +1,6 @@
 package com.phones.phones.controller;
 
+import com.phones.phones.exception.call.CallNotExistException;
 import com.phones.phones.exception.user.UserSessionNotExistException;
 import com.phones.phones.model.Call;
 import com.phones.phones.model.User;
@@ -33,6 +34,17 @@ public class CallController {
         if (currentUser.hasRoleEmployee()) {
             List<Call> calls = callService.findAll();
             return (calls.size() > 0) ? ResponseEntity.ok(calls) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    // No encuentra el id...
+    @GetMapping("/{id}")
+    public ResponseEntity<Call> findCallById(@RequestHeader("Authorization") String sessionToken,
+                                             @PathVariable final Long id) throws CallNotExistException, UserSessionNotExistException {
+        User currentUser = sessionManager.getCurrentUser(sessionToken);
+        if (currentUser.hasRoleEmployee()) {
+            return ResponseEntity.ok(callService.findById(id));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }

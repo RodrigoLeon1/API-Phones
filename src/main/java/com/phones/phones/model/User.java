@@ -41,6 +41,7 @@ public class User {
     @JsonIgnore
     private Date creationDate;
 
+    @Column(columnDefinition = "boolean default true")
     private boolean isActive;
 
     @NotNull

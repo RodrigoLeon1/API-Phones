@@ -40,12 +40,12 @@ public class CityService {
         return cityRepository.findAll();
     }
 
-    public Optional<City> findById(Long id) throws CityNotExistException {
+    public City findById(Long id) throws CityNotExistException {
         Optional<City> city = cityRepository.findById(id);
         if (city.isEmpty()) {
             throw new CityNotExistException();
         }
-        return city;
+        return city.get();
     }
 
     public List<CityTop> findTopCitiesCallsByUserId(Long id) throws UserNotExistException {

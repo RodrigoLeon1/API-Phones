@@ -1,5 +1,6 @@
 package com.phones.phones.service;
 
+import com.phones.phones.exception.invoice.InvoiceNotExistException;
 import com.phones.phones.exception.user.UserNotExistException;
 import com.phones.phones.model.Invoice;
 import com.phones.phones.model.User;
@@ -8,6 +9,8 @@ import com.phones.phones.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +37,12 @@ public class InvoiceService {
         return invoiceRepository.findAll();
     }
 
-    public Optional<Invoice> findById(Long id) {
-        return invoiceRepository.findById(id);
+    public Invoice findById(Long id) throws InvoiceNotExistException {
+        Optional<Invoice> invoice = invoiceRepository.findById(id);
+        if (invoice.isEmpty()) {
+            throw new InvoiceNotExistException();
+        }
+        return invoice.get();
     }
 
     public List<Invoice> findByUserId(Long id) throws UserNotExistException {
@@ -53,7 +60,9 @@ public class InvoiceService {
         if (user.isEmpty()) {
             throw new UserNotExistException();
         }
-        return invoiceRepository.findByUserIdBetweenDates(id, from, to);
+        LocalDateTime fromParsed = LocalDateTime.ofInstant(from.toInstant(), ZoneId.systemDefault());
+        LocalDateTime toParsed = LocalDateTime.ofInstant(to.toInstant(), ZoneId.systemDefault());
+        return invoiceRepository.findByUserIdBetweenDates(id, fromParsed, toParsed);
     }
 
 }

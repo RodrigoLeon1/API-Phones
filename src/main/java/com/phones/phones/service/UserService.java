@@ -1,6 +1,5 @@
 package com.phones.phones.service;
 
-import com.phones.phones.dto.UserDto;
 import com.phones.phones.exception.user.*;
 import com.phones.phones.model.User;
 import com.phones.phones.repository.dto.UserDtoRepository;
@@ -42,18 +41,19 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public List<UserDto> findAll() {
-        return userDtoRepository.findAll();
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
-    public Optional<UserDto> findById(Long id) throws UserNotExistException {
+    public User findById(Long id) throws UserNotExistException {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
             throw new UserNotExistException();
         }
-        return userDtoRepository.findById(id);
+        return user.get();
     }
 
+    // Hacerlo boolean?
     public int disableById(Long id) throws UserNotExistException, UserAlreadyDisableException {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {

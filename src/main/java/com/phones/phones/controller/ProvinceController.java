@@ -17,7 +17,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 public class ProvinceController {
@@ -52,15 +51,11 @@ public class ProvinceController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    public ResponseEntity<Optional<Province>> findProvinceById(@RequestHeader("Authorization") final String sessionToken,
-                                                               @PathVariable final Long id) throws ProvinceNotExistException, UserSessionNotExistException {
+    public ResponseEntity<Province> findProvinceById(@RequestHeader("Authorization") final String sessionToken,
+                                                     @PathVariable final Long id) throws ProvinceNotExistException, UserSessionNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         if (currentUser.hasRoleEmployee()) {
-            Optional<Province> province = provinceService.findById(id);
-            if (province.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            return ResponseEntity.ok(province);
+            return ResponseEntity.ok(provinceService.findById(id));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }

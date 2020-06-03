@@ -33,12 +33,12 @@ public class ProvinceService {
         return provinceRepository.findAll();
     }
 
-    public Optional<Province> findById(Long id) throws ProvinceNotExistException {
+    public Province findById(Long id) throws ProvinceNotExistException {
         Optional<Province> province = provinceRepository.findById(id);
         if (province.isEmpty()) {
             throw new ProvinceNotExistException();
         }
-        return province;
+        return province.get();
     }
 
 }

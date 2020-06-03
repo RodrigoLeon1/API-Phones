@@ -49,6 +49,7 @@ public class UserServiceTest {
     public void testGetAllOk() {
     }
 
+    /*
     @Test
     public void testGetByIdOk() throws UserNotExistException {
         User userGetById = User
@@ -73,7 +74,6 @@ public class UserServiceTest {
         assertEquals(userGetById.getId(), returnedUser.getId());
     }
 
-    /*
     @Test(expected = UserNotExistException.class)
     public void testGetByIdUserNotExist() {
     }

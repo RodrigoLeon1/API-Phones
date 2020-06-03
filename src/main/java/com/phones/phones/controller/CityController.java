@@ -17,7 +17,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 public class CityController {
@@ -52,15 +51,11 @@ public class CityController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    public ResponseEntity<Optional<City>> findCityById(@RequestHeader("Authorization") String sessionToken,
-                                                       @PathVariable final Long id) throws CityNotExistException, UserSessionNotExistException {
+    public ResponseEntity<City> findCityById(@RequestHeader("Authorization") String sessionToken,
+                                             @PathVariable final Long id) throws CityNotExistException, UserSessionNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         if (currentUser.hasRoleEmployee()) {
-            Optional<City> city = cityService.findById(id);
-            if (city.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            return ResponseEntity.ok(city);
+            return ResponseEntity.ok(cityService.findById(id));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }

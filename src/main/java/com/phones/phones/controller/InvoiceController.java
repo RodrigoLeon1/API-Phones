@@ -1,5 +1,6 @@
 package com.phones.phones.controller;
 
+import com.phones.phones.exception.invoice.InvoiceNotExistException;
 import com.phones.phones.exception.user.UserSessionNotExistException;
 import com.phones.phones.model.Invoice;
 import com.phones.phones.model.User;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/invoices")
@@ -39,15 +39,11 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Invoice>> findInvoiceById(@RequestHeader("Authorization") final String sessionToken,
-                                                             @PathVariable final Long id) throws UserSessionNotExistException {
+    public ResponseEntity<Invoice> findInvoiceById(@RequestHeader("Authorization") final String sessionToken,
+                                                   @PathVariable final Long id) throws InvoiceNotExistException, UserSessionNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         if (currentUser.hasRoleEmployee()) {
-            Optional<Invoice> invoice = invoiceService.findById(id);
-            if (invoice.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            return ResponseEntity.ok(invoice);
+            return ResponseEntity.ok(invoiceService.findById(id));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }

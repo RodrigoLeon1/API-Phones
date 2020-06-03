@@ -17,7 +17,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/lines")
@@ -56,30 +55,31 @@ public class LineController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Line>> findLineById(@RequestHeader("Authorization") String sessionToken,
-                                                       @PathVariable final Long id) throws LineNotExistException, UserSessionNotExistException {
+    public ResponseEntity<Line> findLineById(@RequestHeader("Authorization") String sessionToken,
+                                             @PathVariable final Long id) throws LineNotExistException, UserSessionNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         if (currentUser.hasRoleEmployee()) {
-            Optional<Line> line = lineService.findById(id);
-            if (line.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            return ResponseEntity.ok(line);
+            return ResponseEntity.ok(lineService.findById(id));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
+    // TESTEAR
     @DeleteMapping("/{id}")
     public ResponseEntity deleteLineById(@RequestHeader("Authorization") final String sessionToken,
                                          @PathVariable final Long id) throws LineNotExistException, UserSessionNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         if (currentUser.hasRoleEmployee()) {
-            int deleted = lineService.disableById(id);
-            return (deleted > 0) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            /*
+                -- ARREGLAR -- ya no tenemos el campo isActive, solo el enum
+                int deleted = lineService.disableById(id);
+                return (deleted > 0) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+             */
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
+    // TESTEAR
     // cambiar el lineStatusDto a dto completo de line
     @PutMapping("/{id}")
     public ResponseEntity updateLineStatusById(@RequestHeader("Authorization") final String sessionToken,
