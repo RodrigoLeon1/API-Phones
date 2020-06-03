@@ -7,6 +7,7 @@ import com.phones.phones.exception.city.CityNotExistException;
 import com.phones.phones.exception.invoice.InvoiceNotExistException;
 import com.phones.phones.exception.line.LineNotExistException;
 import com.phones.phones.exception.line.LineNumberAlreadyExistException;
+import com.phones.phones.exception.line.LineNumberNotExistException;
 import com.phones.phones.exception.province.ProviceAlreadyExistException;
 import com.phones.phones.exception.province.ProvinceNotExistException;
 import com.phones.phones.exception.user.*;
@@ -55,6 +56,12 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(LineNotExistException.class)
     public ErrorDto handleLineNotExistException(LineNotExistException e) {
         return new ErrorDto(5, "Line id do not exists");
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(LineNumberNotExistException.class)
+    public ErrorDto handleLineNumberNotExistException(LineNumberNotExistException e) {
+        return new ErrorDto(5, "Line number do not exists");
     }
 
 

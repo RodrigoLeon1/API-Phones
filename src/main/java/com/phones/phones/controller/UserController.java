@@ -71,7 +71,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> findUserById(@RequestHeader("Authorization") final String sessionToken,
-                                                @PathVariable final Long id) throws UserNotExistException, UserSessionNotExistException {
+                                             @PathVariable final Long id) throws UserNotExistException, UserSessionNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         if (currentUser.hasRoleEmployee()) {
             return ResponseEntity.ok(userService.findById(id));

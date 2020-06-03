@@ -1,6 +1,7 @@
 package com.phones.phones.repository;
 
 import com.phones.phones.model.Call;
+import com.phones.phones.projection.CallDuration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -40,5 +41,14 @@ public interface CallRepository extends JpaRepository<Call, Long> {
     )
     String findMostCalledByOriginId(Long id);
 
+
+    @Query(
+            value = "SELECT lo.number AS lineOrigin, ld.number AS lineDestination, c.duration AS duration FROM calls c " +
+                    "INNER JOIN `lines` lo ON c.id_origin_line = lo.id " +
+                    "INNER JOIN `lines` ld ON c.id_destination_line = ld.id " +
+                    "WHERE lo.number = ?1 AND ld.number = ?2",
+            nativeQuery = true
+    )
+    List<CallDuration> findCallsDurationByOriginAndDestiny(String origin, String destiny);
 
 }
