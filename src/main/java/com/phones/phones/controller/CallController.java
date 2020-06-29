@@ -7,8 +7,6 @@ import com.phones.phones.model.User;
 import com.phones.phones.service.CallService;
 import com.phones.phones.session.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,17 +25,15 @@ public class CallController {
         this.sessionManager = sessionManager;
     }
 
-    public ResponseEntity<List<Call>> findAllCalls(@RequestHeader("Authorization") String sessionToken) throws UserSessionDoesNotExistException {
+    public List<Call> findAllCalls(@RequestHeader("Authorization") String sessionToken) throws UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Call> calls = callService.findAll();
-        return (calls.size() > 0) ? ResponseEntity.ok(calls) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return callService.findAll();
     }
 
-    public ResponseEntity<Call> findCallById(@RequestHeader("Authorization") String sessionToken,
-                                             @PathVariable final Long id) throws CallDoesNotExistException, UserSessionDoesNotExistException {
+    public Call findCallById(@RequestHeader("Authorization") String sessionToken,
+                             @PathVariable final Long id) throws CallDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        Call call = callService.findById(id);
-        return ResponseEntity.ok(call);
+        return callService.findById(id);
     }
 
 }

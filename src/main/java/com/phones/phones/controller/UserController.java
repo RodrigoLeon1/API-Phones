@@ -9,10 +9,7 @@ import com.phones.phones.model.Line;
 import com.phones.phones.model.User;
 import com.phones.phones.service.*;
 import com.phones.phones.session.SessionManager;
-import com.phones.phones.utils.RestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,107 +50,95 @@ public class UserController {
     }
 
 
-    public ResponseEntity createUser(@RequestHeader("Authorization") final String sessionToken,
-                                     @RequestBody @Valid final User user) throws UsernameAlreadyExistException, UserAlreadyExistException, UserSessionDoesNotExistException {
+    public User createUser(@RequestHeader("Authorization") final String sessionToken,
+                           @RequestBody @Valid final User user) throws UsernameAlreadyExistException, UserAlreadyExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        User newUser = userService.create(user);
-        return ResponseEntity.created(RestUtils.getLocation(newUser.getId())).build();
+        return userService.create(user);
     }
 
-    public ResponseEntity<List<User>> findAllUsers(@RequestHeader("Authorization") final String sessionToken) throws UserSessionDoesNotExistException {
+    public List<User> findAllUsers(@RequestHeader("Authorization") final String sessionToken) throws UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<User> users = userService.findAll();
-        return (users.size() > 0) ? ResponseEntity.ok(users) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return userService.findAll();
     }
 
-    public ResponseEntity<User> findUserById(@RequestHeader("Authorization") final String sessionToken,
+    public User findUserById(@RequestHeader("Authorization") final String sessionToken,
                                              @PathVariable final Long id) throws UserDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        User user = userService.findById(id);
-        return ResponseEntity.ok(user);
+        return userService.findById(id);
     }
 
-    public ResponseEntity deleteUserById(@RequestHeader("Authorization") final String sessionToken,
-                                         @PathVariable final Long id) throws UserDoesNotExistException, UserAlreadyDisableException, UserSessionDoesNotExistException {
+    public boolean deleteUserById(@RequestHeader("Authorization") final String sessionToken,
+                                  @PathVariable final Long id) throws UserDoesNotExistException, UserAlreadyDisableException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        boolean deleted = userService.disableById(id);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return userService.disableById(id);
     }
 
-    public ResponseEntity updateUserById(@RequestHeader("Authorization") final String sessionToken,
-                                         @RequestBody @Valid final UserDto updatedUser,
-                                         @PathVariable final Long id) throws UserDoesNotExistException, UsernameAlreadyExistException, UserSessionDoesNotExistException {
+    public User updateUserById(@RequestHeader("Authorization") final String sessionToken,
+                               @RequestBody @Valid final UserDto updatedUser,
+                               @PathVariable final Long id) throws UserDoesNotExistException, UsernameAlreadyExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        User updated = userService.updateById(id, updatedUser);
-        return ResponseEntity.ok().build();
+        return userService.updateById(id, updatedUser);
     }
 
-    public ResponseEntity<List<Call>> findCallsByUserId(@RequestHeader("Authorization") String sessionToken,
-                                                        @PathVariable final Long id) throws UserDoesNotExistException, UserSessionDoesNotExistException {
+    public List<Call> findCallsByUserId(@RequestHeader("Authorization") String sessionToken,
+                                        @PathVariable final Long id) throws UserDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Call> calls = callService.findByUserId(id);
-        return (calls.size() > 0) ? ResponseEntity.ok(calls) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return callService.findByUserId(id);
     }
 
-    public ResponseEntity<List<Call>> findCallsByUserSessionBetweenDates(@RequestHeader("Authorization") final String sessionToken,
-                                                                         @RequestParam(name = "from") final String from,
-                                                                         @RequestParam(name = "to") final String to) throws ParseException, UserDoesNotExistException, UserSessionDoesNotExistException {
+    public List<Call> findCallsByUserSessionBetweenDates(@RequestHeader("Authorization") final String sessionToken,
+                                                         @RequestParam(name = "from") final String from,
+                                                         @RequestParam(name = "to") final String to) throws ParseException, UserDoesNotExistException, UserSessionDoesNotExistException {
         if (from == null || to == null) {
             throw new ValidationException("Date 'from' and date 'to' must have a value");
         }
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         Date fromDate = new SimpleDateFormat("dd/MM/yyyy").parse(from);
         Date toDate = new SimpleDateFormat("dd/MM/yyyy").parse(to);
-        List<Call> calls = callService.findByUserIdBetweenDates(currentUser.getId(), fromDate, toDate);
-        return (calls.size() > 0) ? ResponseEntity.ok(calls) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return callService.findByUserIdBetweenDates(currentUser.getId(), fromDate, toDate);
     }
 
-    public ResponseEntity<List<Line>> findLinesByUserId(@RequestHeader("Authorization") final String sessionToken,
-                                                        @PathVariable final Long id) throws UserDoesNotExistException, UserSessionDoesNotExistException {
+    public List<Line> findLinesByUserId(@RequestHeader("Authorization") final String sessionToken,
+                                        @PathVariable final Long id) throws UserDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Line> lines = lineService.findByUserId(id);
-        return (lines.size() > 0) ? ResponseEntity.ok(lines) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return lineService.findByUserId(id);
     }
 
-    public ResponseEntity<List<Line>> findLinesByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
+    public List<Line> findLinesByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Line> lines = lineService.findByUserId(currentUser.getId());
-        return (lines.size() > 0) ? ResponseEntity.ok(lines) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return lineService.findByUserId(currentUser.getId());
     }
 
-    public ResponseEntity<List<Invoice>> findInvoicesByUserSessionBetweenDates(@RequestHeader("Authorization") final String sessionToken,
-                                                                               @RequestParam(name = "from") final String from,
-                                                                               @RequestParam(name = "to") final String to) throws ParseException, UserDoesNotExistException, UserSessionDoesNotExistException {
+    public List<Invoice> findInvoicesByUserSessionBetweenDates(@RequestHeader("Authorization") final String sessionToken,
+                                                               @RequestParam(name = "from") final String from,
+                                                               @RequestParam(name = "to") final String to) throws ParseException, UserDoesNotExistException, UserSessionDoesNotExistException {
         if (from == null || to == null) {
             throw new ValidationException("Date 'from' and date 'to' must have a value");
         }
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Invoice> invoices = findInvoicesById(currentUser.getId(), from, to);
-        return (invoices.size() > 0) ? ResponseEntity.ok(invoices) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return findInvoicesById(currentUser.getId(), from, to);
     }
 
-    public ResponseEntity<List<Invoice>> findInvoicesByUserIdBetweenDates(@RequestHeader("Authorization") final String sessionToken,
-                                                                          @PathVariable final Long id,
-                                                                          @RequestParam(name = "from") final String from,
-                                                                          @RequestParam(name = "to") final String to) throws ParseException, UserDoesNotExistException, UserSessionDoesNotExistException {
+    public List<Invoice> findInvoicesByUserIdBetweenDates(@RequestHeader("Authorization") final String sessionToken,
+                                                          @PathVariable final Long id,
+                                                          @RequestParam(name = "from") final String from,
+                                                          @RequestParam(name = "to") final String to) throws ParseException, UserDoesNotExistException, UserSessionDoesNotExistException {
         if (from == null || to == null) {
             throw new ValidationException("Date 'from' and date 'to' must have a value");
         }
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Invoice> invoices = findInvoicesById(id, from, to);
-        return (invoices.size() > 0) ? ResponseEntity.ok(invoices) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return findInvoicesById(id, from, to);
     }
 
-    public List<Invoice> findInvoicesById(final Long id, String from, String to) throws UserDoesNotExistException, ParseException {
+    private List<Invoice> findInvoicesById(final Long id, String from, String to) throws UserDoesNotExistException, ParseException {
         Date fromDate = new SimpleDateFormat("dd/MM/yyyy").parse(from);
         Date toDate = new SimpleDateFormat("dd/MM/yyyy").parse(to);
         return invoiceService.findByUserIdBetweenDates(id, fromDate, toDate);
     }
 
-    public ResponseEntity<List<CityTopDto>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
+    public List<CityTopDto> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<CityTopDto> citiesTops = cityService.findTopCitiesCallsByUserId(currentUser.getId());
-        return (citiesTops.size() > 0) ? ResponseEntity.ok(citiesTops) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return cityService.findTopCitiesCallsByUserId(currentUser.getId());
     }
 
     public Optional<User> login(final String username,

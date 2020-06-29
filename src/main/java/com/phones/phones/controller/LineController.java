@@ -1,6 +1,5 @@
 package com.phones.phones.controller;
 
-import com.phones.phones.utils.RestUtils;
 import com.phones.phones.dto.LineDto;
 import com.phones.phones.exception.line.LineAlreadyDisabledException;
 import com.phones.phones.exception.line.LineDoesNotExistException;
@@ -13,8 +12,6 @@ import com.phones.phones.service.CallService;
 import com.phones.phones.service.LineService;
 import com.phones.phones.session.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,46 +37,40 @@ public class LineController {
     }
 
 
-    public ResponseEntity createLine(@RequestHeader("Authorization") String sessionToken,
-                                     @RequestBody @Valid final Line line) throws LineNumberAlreadyExistException, UserSessionDoesNotExistException {
+    public Line createLine(@RequestHeader("Authorization") String sessionToken,
+                           @RequestBody @Valid final Line line) throws LineNumberAlreadyExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        Line newLine = lineService.create(line);
-        return ResponseEntity.created(RestUtils.getLocation(newLine.getId())).build();
+        return lineService.create(line);
     }
 
-    public ResponseEntity<List<Line>> findAllLines(@RequestHeader("Authorization") String sessionToken) throws UserSessionDoesNotExistException {
+    public List<Line> findAllLines(@RequestHeader("Authorization") String sessionToken) throws UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Line> lines = lineService.findAll();
-        return (lines.size() > 0) ? ResponseEntity.ok(lines) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return lineService.findAll();
     }
 
-    public ResponseEntity<Line> findLineById(@RequestHeader("Authorization") String sessionToken,
-                                             @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
+    public Line findLineById(@RequestHeader("Authorization") String sessionToken,
+                             @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        Line line = lineService.findById(id);
-        return ResponseEntity.ok(line);
+        return lineService.findById(id);
     }
 
-    public ResponseEntity<List<Call>> findCallsByLineId(@RequestHeader("Authorization") String sessionToken,
-                                                        @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
+    public List<Call> findCallsByLineId(@RequestHeader("Authorization") String sessionToken,
+                                        @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<Call> calls = callService.findByLineId(id);
-        return (calls.size() > 0) ? ResponseEntity.ok(calls) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return callService.findByLineId(id);
     }
 
-    public ResponseEntity deleteLineById(@RequestHeader("Authorization") final String sessionToken,
-                                         @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException, LineAlreadyDisabledException {
+    public int deleteLineById(@RequestHeader("Authorization") final String sessionToken,
+                              @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException, LineAlreadyDisabledException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        int deleted = lineService.disableById(id);
-        return (deleted > 0) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return lineService.disableById(id);
     }
 
-    public ResponseEntity updateLineByIdLine(@RequestHeader("Authorization") final String sessionToken,
-                                             @RequestBody @Valid final LineDto updatedLine,
-                                             @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
+    public boolean updateLineByIdLine(@RequestHeader("Authorization") final String sessionToken,
+                                      @RequestBody @Valid final LineDto updatedLine,
+                                      @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        boolean line = lineService.updateLineByIdLine(id, updatedLine);
-        return ResponseEntity.ok().build();
+        return lineService.updateLineByIdLine(id, updatedLine);
     }
 
 }

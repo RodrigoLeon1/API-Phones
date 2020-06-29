@@ -38,6 +38,13 @@ public class BackOfficeController {
     }
 
 
+    //return (invoices.size() > 0) ? ResponseEntity.ok(invoices) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    //return ResponseEntity.created(RestUtils.getLocation(newLine.getId())).build();
+    //return ResponseEntity.ok(line);
+    //return ResponseEntity.ok().build();
+    //return (deleted > 0) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    //return deleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
     /* CRUD Clients */
     @PostMapping("/users/")
     public ResponseEntity createUser(@RequestHeader("Authorization") final String sessionToken,

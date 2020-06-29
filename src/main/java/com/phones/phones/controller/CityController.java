@@ -1,6 +1,5 @@
 package com.phones.phones.controller;
 
-import com.phones.phones.utils.RestUtils;
 import com.phones.phones.exception.city.CityAlreadyExistException;
 import com.phones.phones.exception.city.CityDoesNotExistException;
 import com.phones.phones.exception.user.UserSessionDoesNotExistException;
@@ -9,8 +8,6 @@ import com.phones.phones.model.User;
 import com.phones.phones.service.CityService;
 import com.phones.phones.session.SessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,24 +30,21 @@ public class CityController {
     }
 
 
-    public ResponseEntity createCity(@RequestHeader("Authorization") String sessionToken,
-                                     @RequestBody @Valid final City city) throws CityAlreadyExistException, UserSessionDoesNotExistException {
+    public City createCity(@RequestHeader("Authorization") String sessionToken,
+                           @RequestBody @Valid final City city) throws CityAlreadyExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        City newCity = cityService.create(city);
-        return ResponseEntity.created(RestUtils.getLocation(newCity.getId())).build();
+        return cityService.create(city);
     }
 
-    public ResponseEntity<List<City>> findAllCities(@RequestHeader("Authorization") final String sessionToken) throws UserSessionDoesNotExistException {
+    public List<City> findAllCities(@RequestHeader("Authorization") final String sessionToken) throws UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<City> cities = cityService.findAll();
-        return (cities.size() > 0) ? ResponseEntity.ok(cities) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return cityService.findAll();
     }
 
-    public ResponseEntity<City> findCityById(@RequestHeader("Authorization") String sessionToken,
+    public City findCityById(@RequestHeader("Authorization") String sessionToken,
                                              @PathVariable final Long id) throws CityDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        City city = cityService.findById(id);
-        return ResponseEntity.ok(city);
+        return cityService.findById(id);
     }
 
 }
