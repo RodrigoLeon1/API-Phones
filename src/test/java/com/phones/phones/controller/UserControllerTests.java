@@ -1,7 +1,7 @@
 package com.phones.phones.controller;
 
-import com.phones.phones.utils.RestUtils;
 import com.phones.phones.TestFixture;
+import com.phones.phones.dto.CityTopDto;
 import com.phones.phones.dto.UserDto;
 import com.phones.phones.exception.user.*;
 import com.phones.phones.model.Call;
@@ -10,6 +10,7 @@ import com.phones.phones.model.Line;
 import com.phones.phones.model.User;
 import com.phones.phones.service.*;
 import com.phones.phones.session.SessionManager;
+import com.phones.phones.utils.RestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,6 +154,19 @@ public class UserControllerTests {
         assertEquals(ResponseEntity.ok().build(), deleted);
     }
 
+
+    @Test
+    public void deleteUserByIdBadRequest() throws UserSessionDoesNotExistException, UserDoesNotExistException, UserAlreadyDisableException {
+        User loggedUser = TestFixture.testUser();
+
+        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
+        when(userService.disableById(1L)).thenReturn(false);
+
+        ResponseEntity deleted = userController.deleteUserById("123", 1L);
+
+        assertEquals(HttpStatus.BAD_REQUEST, deleted.getStatusCode());
+    }
+
     /**
      *
      * updateUserById
@@ -232,6 +246,14 @@ public class UserControllerTests {
 
         assertEquals(testCalls.size(), returnedCalls.getBody().size());
         assertEquals(testCalls.get(0).getOriginNumber(), returnedCalls.getBody().get(0).getOriginNumber());
+    }
+
+    @Test( expected = ValidationException.class)
+    public void findCallsByUserSessionBetweenDatesNullParam() throws UserSessionDoesNotExistException, UserDoesNotExistException, ParseException {
+        User loggedUser = TestFixture.testUser();
+        Date fromDate = null;
+
+        userController.findCallsByUserSessionBetweenDates("123", null, "19/06/2020");
     }
 
 
@@ -447,27 +469,52 @@ public class UserControllerTests {
      * findTopCitiesCallsByUserSession
      *
      * */
-/**todo findTopCitiesCallsByUserSessionTEST*
+
 
     @Test
     public void findTopCitiesCallsByUserSessionOk() throws UserSessionDoesNotExistException, UserDoesNotExistException {
         User loggedUser = TestFixture.testUser();
-        List<CityTop> testLines = TestFixture.();
+        List<CityTopDto> testCities = TestFixture.testListOfCityTop();
 
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(lineService.findByUserId(loggedUser.getId())).thenReturn(testLines);
+        when(cityService.findTopCitiesCallsByUserId(loggedUser.getId())).thenReturn(testCities);
 
-        ResponseEntity<List<Line>> returnedLines = userController.findLinesByUserSession("123");
+        ResponseEntity<List<CityTopDto>> returnedCities = userController.findTopCitiesCallsByUserSession("123");
 
-        assertEquals(testLines.size(), returnedLines.getBody().size());
-        assertEquals(testLines.get(0).getUser(), returnedLines.getBody().get(0). getUser());
-        assertEquals(testLines.get(0).getUser().getUsername(), returnedLines.getBody().get(0). getUser().getUsername());
-        assertEquals("rl", returnedLines.getBody().get(0). getUser().getUsername());
-        assertEquals("404040", returnedLines.getBody().get(0). getUser().getDni());
+        assertEquals(testCities.size(), returnedCities.getBody().size());
+        assertEquals(testCities.get(0).getName(), returnedCities.getBody().get(0).getName());
+        assertEquals(testCities.get(0).getQuantity(), returnedCities.getBody().get(0).getQuantity());
+        assertEquals("Capital Federal", returnedCities.getBody().get(0).getName());
+        assertEquals(15, returnedCities.getBody().get(1).getQuantity());
     }
 
 
     @Test
+    public void findTopCitiesCallsByUserSessionNoContent() throws UserSessionDoesNotExistException, UserDoesNotExistException {
+        User loggedUser = TestFixture.testUser();
+        List<CityTopDto> testCities = new ArrayList<>();
+
+        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
+        when(cityService.findTopCitiesCallsByUserId(loggedUser.getId())).thenReturn(testCities);
+
+        ResponseEntity<List<CityTopDto>> returnedCities = userController.findTopCitiesCallsByUserSession("123");
+
+        assertEquals(HttpStatus.NO_CONTENT, returnedCities.getStatusCode());
+
+
+
+    }
+
+
+/*    public ResponseEntity<List<CityTopDto>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
+        User currentUser = sessionManager.getCurrentUser(sessionToken);
+        List<CityTopDto> citiesTops = cityService.findTopCitiesCallsByUserId(currentUser.getId());
+        return (citiesTops.size() > 0) ? ResponseEntity.ok(citiesTops) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }*/
+
+
+
+/*    @Test
     public void findTopCitiesCallsByUserSessionNoCallsFound() throws UserSessionDoesNotExistException, UserDoesNotExistException {
         User loggedUser = TestFixture.testClientUser();
         List<Line> emptyLines = new ArrayList<>();
@@ -479,8 +526,8 @@ public class UserControllerTests {
         ResponseEntity<List<Line>> returnedLines = userController.findLinesByUserSession("123");
 
         assertEquals(response.getStatusCode(), returnedLines.getStatusCode());
-    }
-*/
+    }*/
+
 
 
     /**
@@ -504,7 +551,25 @@ public class UserControllerTests {
         assertEquals(loginUser.getDni(), loggedUser.get().getDni());
     }
 
-    /**todo getLocation */
+
+    @Test (expected = ValidationException.class)
+    public void testLoginValidationException() throws UserInvalidLoginException, ValidationException {
+        User loginUser = TestFixture.testUser();
+        String username = "rl";
+        String password = null;
+
+        userController.login(username, password);
+    }
+
+    @Test (expected = ValidationException.class)
+    public void testLoginOneNullParam() throws UserInvalidLoginException, ValidationException {
+        User loginUser = TestFixture.testUser();
+        String username = null;
+        String password = null;
+
+        userController.login(username, password);
+    }
+
 }
 
 

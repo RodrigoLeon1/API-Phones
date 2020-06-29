@@ -135,7 +135,7 @@
 						<exclude>**/repository/**</exclude>
 						<exclude>**/exception/**</exclude>
 						<exclude>**/controller/ControllerAdvice.class</exclude>
-						<exclude>**/controller/web/LoginController.class</exclude>
+<!--						<exclude>**/controller/web/LoginController.class</exclude>-->
 						<exclude>**/controller/web/InfrastructureController.class</exclude>
 						<exclude>**/PhonesApplication.class</exclude>
 					</excludes>

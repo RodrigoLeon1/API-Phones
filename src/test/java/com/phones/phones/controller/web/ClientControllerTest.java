@@ -2,6 +2,7 @@ package com.phones.phones.controller.web;
 
 import com.phones.phones.TestFixture;
 import com.phones.phones.controller.UserController;
+import com.phones.phones.dto.CityTopDto;
 import com.phones.phones.exception.user.UserDoesNotExistException;
 import com.phones.phones.exception.user.UserSessionDoesNotExistException;
 import com.phones.phones.model.Call;
@@ -56,15 +57,14 @@ public class ClientControllerTest {
     }
 
 
-/***todo findTopCitiesCallsByUserSession */
-/*    @Test
+    @Test
     public void findTopCitiesCallsByUserSession() throws UserSessionDoesNotExistException, UserDoesNotExistException, ParseException {
-        ResponseEntity<List<Invoice>> invoices = ResponseEntity.ok(TestFixture.testListOfInvoices());
-        when(userController.findInvoicesByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020")).thenReturn(invoices);
-        ResponseEntity<List<Invoice>> returnedInvoices = clientController.findInvoicesByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020");
+        ResponseEntity<List<CityTopDto>> topCities = ResponseEntity.ok(TestFixture.testListOfCityTop());
+        when(userController.findTopCitiesCallsByUserSession("123")).thenReturn(topCities);
+        ResponseEntity<List<CityTopDto>> returnedInvoices = clientController.findTopCitiesCallsByUserSession("123");
 
-        assertEquals(invoices.getBody().get(0).getId(), returnedInvoices.getBody().get(0).getId());
-        assertEquals(invoices.getBody().get(0).getNumberCalls(), returnedInvoices.getBody().get(0).getNumberCalls());
-        assertEquals(1L, returnedInvoices.getBody().get(0).getId());
-    }*/
+        assertEquals(topCities.getBody().get(0).getName(), returnedInvoices.getBody().get(0).getName());
+        assertEquals(topCities.getBody().get(0).getQuantity(), returnedInvoices.getBody().get(0).getQuantity());
+        assertEquals("Capital Federal", returnedInvoices.getBody().get(0).getName());
+    }
 }

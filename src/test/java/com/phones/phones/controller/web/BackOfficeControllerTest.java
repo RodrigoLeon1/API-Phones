@@ -7,10 +7,8 @@ import com.phones.phones.controller.UserController;
 import com.phones.phones.dto.RateDto;
 import com.phones.phones.exception.line.LineAlreadyDisabledException;
 import com.phones.phones.exception.line.LineDoesNotExistException;
-import com.phones.phones.exception.user.UserAlreadyDisableException;
-import com.phones.phones.exception.user.UserDoesNotExistException;
-import com.phones.phones.exception.user.UserSessionDoesNotExistException;
-import com.phones.phones.exception.user.UsernameAlreadyExistException;
+import com.phones.phones.exception.line.LineNumberAlreadyExistException;
+import com.phones.phones.exception.user.*;
 import com.phones.phones.model.Call;
 import com.phones.phones.model.Invoice;
 import com.phones.phones.model.Line;
@@ -50,6 +48,41 @@ public class BackOfficeControllerTest {
      * USER ENDPOINTS
      * */
 
+
+    @Test
+    public void createUserOk() throws UserSessionDoesNotExistException, UserAlreadyExistException, UsernameAlreadyExistException {
+        User user = TestFixture.testUser();
+        ResponseEntity<User> response = ResponseEntity.ok(TestFixture.testUser());
+        when(userController.createUser("123", user)).thenReturn(response);
+        ResponseEntity<User> returnedUser = backOfficeController.createUser("123", user);
+
+        assertEquals(response.getBody().getName(), returnedUser.getBody().getName());
+        assertEquals(response.getBody().getDni(), returnedUser.getBody().getDni());
+
+    }
+
+    @Test (expected = UserSessionDoesNotExistException.class)
+    public void createUserUserSessionDoesNotExistException() throws UserSessionDoesNotExistException, UserAlreadyExistException, UsernameAlreadyExistException {
+        User user = TestFixture.testUser();
+        when(userController.createUser("123",user)).thenThrow(new UserSessionDoesNotExistException());
+        backOfficeController.createUser("123", user);
+    }
+
+    @Test (expected = UsernameAlreadyExistException.class)
+    public void createUserUsernameAlreadyExistException() throws UserSessionDoesNotExistException, UserAlreadyExistException, UsernameAlreadyExistException {
+        User user = TestFixture.testUser();
+        when(userController.createUser("123",user)).thenThrow(new UsernameAlreadyExistException());
+        backOfficeController.createUser("123", user);
+    }
+
+
+    @Test (expected = UserAlreadyExistException.class)
+    public void createUserUserAlreadyExistException() throws UserSessionDoesNotExistException, UserAlreadyExistException, UsernameAlreadyExistException {
+        User user = TestFixture.testUser();
+        when(userController.createUser("123",user)).thenThrow(new UserAlreadyExistException());
+        backOfficeController.createUser("123", user);
+    }
+
     @Test
     public void findAllUsersOk() throws UserSessionDoesNotExistException {
         ResponseEntity<List<User>> usersList = ResponseEntity.ok(TestFixture.testListOfUsers());
@@ -59,6 +92,12 @@ public class BackOfficeControllerTest {
         assertEquals(usersList.getBody().size(), returnedUsers.getBody().size());
         assertEquals(usersList.getBody().get(0).getDni(), returnedUsers.getBody().get(0).getDni());
 
+    }
+
+    @Test (expected = UserSessionDoesNotExistException.class)
+    public void findAllUsersUserSessionDoesNotExistException() throws UserSessionDoesNotExistException {
+        when(userController.findAllUsers("123")).thenThrow(new UserSessionDoesNotExistException());
+        backOfficeController.findAllUsers("123");
     }
 
 
@@ -99,6 +138,19 @@ public class BackOfficeControllerTest {
      *
      * LINE ENDPOINTS
      * */
+
+    @Test
+    public void createLineOk() throws LineNumberAlreadyExistException, UserSessionDoesNotExistException {
+        Line line = TestFixture.testLine("2235472861");
+        ResponseEntity<Line> response = ResponseEntity.ok(TestFixture.testLine("2235472861"));
+        when(lineController.createLine("123", line)).thenReturn(response);
+        ResponseEntity<Line> returnedLine = backOfficeController.createLine("123", line);
+
+        assertEquals(response.getBody().getCreationDate(), returnedLine.getBody().getCreationDate());
+        assertEquals(response.getBody().getNumber(), returnedLine.getBody().getNumber());
+
+    }
+
 
     @Test
     public void findAllLinesOk() throws UserSessionDoesNotExistException {
@@ -168,6 +220,17 @@ public class BackOfficeControllerTest {
 
     @Test
     public void findCallsByUserIdOk() throws UserSessionDoesNotExistException, UserDoesNotExistException {
+        ResponseEntity<List<Call>> call = ResponseEntity.ok(TestFixture.testListOfCalls());
+        when(userController.findCallsByUserId("123", 1L)).thenReturn(call);
+        ResponseEntity<List<Call>> returnedCalls = backOfficeController.findCallsByUserId("123", 1L);
+
+        assertEquals(call.getBody().get(0).getId(), returnedCalls.getBody().get(0).getId());
+        assertEquals(call.getBody().get(0).getDuration(), returnedCalls.getBody().get(0).getDuration());
+        assertEquals(1L, returnedCalls.getBody().get(0).getId());
+    }
+
+    @Test
+    public void findCallsByUserIdNoCallsFound() throws UserSessionDoesNotExistException, UserDoesNotExistException {
         ResponseEntity<List<Call>> call = ResponseEntity.ok(TestFixture.testListOfCalls());
         when(userController.findCallsByUserId("123", 1L)).thenReturn(call);
         ResponseEntity<List<Call>> returnedCalls = backOfficeController.findCallsByUserId("123", 1L);

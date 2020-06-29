@@ -1,15 +1,15 @@
 package com.phones.phones.controller;
 
-import com.phones.phones.utils.RestUtils;
+import com.phones.phones.dto.CityTopDto;
 import com.phones.phones.dto.UserDto;
 import com.phones.phones.exception.user.*;
 import com.phones.phones.model.Call;
 import com.phones.phones.model.Invoice;
 import com.phones.phones.model.Line;
 import com.phones.phones.model.User;
-import com.phones.phones.projection.CityTop;
 import com.phones.phones.service.*;
 import com.phones.phones.session.SessionManager;
+import com.phones.phones.utils.RestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -150,9 +150,9 @@ public class UserController {
         return invoiceService.findByUserIdBetweenDates(id, fromDate, toDate);
     }
 
-    public ResponseEntity<List<CityTop>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
+    public ResponseEntity<List<CityTopDto>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<CityTop> citiesTops = cityService.findTopCitiesCallsByUserId(currentUser.getId());
+        List<CityTopDto> citiesTops = cityService.findTopCitiesCallsByUserId(currentUser.getId());
         return (citiesTops.size() > 0) ? ResponseEntity.ok(citiesTops) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

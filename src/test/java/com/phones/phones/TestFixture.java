@@ -299,19 +299,23 @@ public class TestFixture {
     }
 
 
-/*    public static List<CityTop> testListOfCityTop() {
-        ProjectionFactory factory = new SpelAwareProxyProjectionFactory();
-        List<CityTop> cities = new ArrayList();
-        CityTop newCity = factory.createProjection(CityTop.class);
-        newCity.setGetName("");
+    public static List<CityTopDto> testListOfCityTop() {
+        List<CityTopDto> topCities = new ArrayList<>();
+         CityTopDto topCity = CityTopDto.builder()
+                .name("Capital Federal")
+                .quantity((long) 10)
+                .build();
+
+        CityTopDto topCity2 = CityTopDto.builder()
+                .name("Mar del Plata")
+                .quantity((long) 15)
+                .build();
+
+        topCities.add(topCity);
+        topCities.add(topCity2);
+
+        return topCities;
     }
-
-
-        cities.add(newCity);
-        cities.add(newCity2);
-        return cities;
-    }*/
-
 
 
 
@@ -413,6 +417,7 @@ public class TestFixture {
                 .id(1L)
                 .duration(5)
                 .totalPrice((float) 15)
+                .totalCost((float)10)
                 .creationDate(new Date(2020, 06, 10))
                 .originNumber("2235472861")
                 .destinationNumber("22322222")
@@ -421,6 +426,12 @@ public class TestFixture {
                 .rate(new Rate())
                 .invoice(new Invoice())
                 .build();
+        return newCall;
+    }
+
+    public static Call testConstCall() {
+        Call newCall = new Call(1L, 5, (float)15,(float)10,new Date(2020, 06, 10),"2235472861","22322222",new Line(),new Line(), new Rate(), new Invoice());
+
         return newCall;
     }
 

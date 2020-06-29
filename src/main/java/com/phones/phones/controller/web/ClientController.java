@@ -1,11 +1,11 @@
 package com.phones.phones.controller.web;
 
 import com.phones.phones.controller.UserController;
+import com.phones.phones.dto.CityTopDto;
 import com.phones.phones.exception.user.UserDoesNotExistException;
 import com.phones.phones.exception.user.UserSessionDoesNotExistException;
 import com.phones.phones.model.Call;
 import com.phones.phones.model.Invoice;
-import com.phones.phones.projection.CityTop;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +41,7 @@ public class ClientController {
 
     /** Consulta de TOP 10 destinos más llamados por el usuario */
     @GetMapping("/me/cities/top")
-    public ResponseEntity<List<CityTop>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
+    public ResponseEntity<List<CityTopDto>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
         return userController.findTopCitiesCallsByUserSession(sessionToken);
     }
 

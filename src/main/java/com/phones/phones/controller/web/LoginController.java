@@ -2,7 +2,6 @@ package com.phones.phones.controller.web;
 
 import com.phones.phones.controller.UserController;
 import com.phones.phones.dto.UserLoginDto;
-import com.phones.phones.exception.user.UserDoesNotExistException;
 import com.phones.phones.exception.user.UserInvalidLoginException;
 import com.phones.phones.model.User;
 import com.phones.phones.session.SessionManager;
@@ -30,7 +29,7 @@ public class LoginController {
 
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody final UserLoginDto userLoginDto) throws UserInvalidLoginException, ValidationException, UserDoesNotExistException {
+    public ResponseEntity login(@RequestBody final UserLoginDto userLoginDto) throws UserInvalidLoginException, ValidationException {
         ResponseEntity response;
         Optional<User> u = userController.login(userLoginDto.getUsername(), userLoginDto.getPassword());
         if (u.isEmpty()) {

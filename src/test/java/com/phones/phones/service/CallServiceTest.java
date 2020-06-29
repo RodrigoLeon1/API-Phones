@@ -39,17 +39,12 @@ public class CallServiceTest {
     @Mock
     LineRepository lineRepository;
 
-    @Mock
-    Call.CallBuilder callBuilder;
-
-
     @Before
     public void setUp() {
         initMocks(this);
         this.callService = new CallService(callRepository, lineRepository, userRepository);
     }
 
-    /**todo Test Create method, need to mock builder*/
 
     @Test
     public void createCallParamOk(){
@@ -116,32 +111,33 @@ public class CallServiceTest {
     @Test(expected = LineCannotMakeCallsException.class)
     public void testCreateDTODestinationSuspended() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
         InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
-        Line testDestinationLine = TestFixture.testLine(infrastructureCallDto.getDestinationNumber());
-        Line testOriginLine = TestFixture.testSuspendedLine(infrastructureCallDto.getOriginNumber());
+        Line testOriginLine = TestFixture.testSuspendedLine(infrastructureCallDto.getDestinationNumber());
+        Line testDestinationLine = TestFixture.testSuspendedLine(infrastructureCallDto.getOriginNumber());
 
         when(lineRepository.findByNumber(infrastructureCallDto.getDestinationNumber())).thenReturn(Optional.ofNullable(testDestinationLine));
         when(lineRepository.findByNumber(infrastructureCallDto.getOriginNumber())).thenReturn(Optional.ofNullable(testOriginLine));
         this.callService.create(infrastructureCallDto);
     }
+
+
 /*    @Test
-    public void testCreateOk() throws LineNumberNotExistException, LineCannotMakeCallsException {
+    public void testCreateOk() throws LineNumberDoesNotExistException, LineCannotMakeCallsException, LineNumberDoesNotExistException {
         InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
         Line testOriginLine = TestFixture.testLine(infrastructureCallDto.getOriginNumber());
         Line testDestinationLine = TestFixture.testLine(infrastructureCallDto.getDestinationNumber());
 
-       Call testCall = Call//Mockito.mock(Call.class, RETURNS_DEEP_STUBS);
+*//*       Call testCall = Call//Mockito.mock(Call.class, RETURNS_DEEP_STUBS);
                         .builder()
                         .id(1L)
                         .duration(infrastructureCallDto.getDuration())
                         .creationDate(infrastructureCallDto.getCreationDate())
                         .originNumber(infrastructureCallDto.getOriginNumber())
                         .destinationNumber(infrastructureCallDto.getDestinationNumber())
-                        .build();
-        //Call tesCall = TestFixture.testCalls();
+                        .build();*//*
+       Call testCall = TestFixture.testConstCall();
 
         when(lineRepository.findByNumber(infrastructureCallDto.getDestinationNumber())).thenReturn(Optional.ofNullable(testDestinationLine));
         when(lineRepository.findByNumber(infrastructureCallDto.getOriginNumber())).thenReturn(Optional.ofNullable(testOriginLine));
-        when(callBuilder).thenReturn(testCall);
         when(callRepository.save(testCall)).thenReturn(testCall);
         Call returnedCall = this.callService.create(infrastructureCallDto);
 
@@ -219,10 +215,10 @@ public class CallServiceTest {
     }
 
 
-    @Test(expected = UserDoesNotExistException.class)
-    public void testFindByLineIdLineNotExist() throws UserDoesNotExistException {
+    @Test(expected = LineDoesNotExistException.class)
+    public void testFindByLineIdLineNotExist() throws LineDoesNotExistException {
         when(lineRepository.findById(2L)).thenReturn(Optional.empty());
-        this.callService.findByUserId(2L);
+        this.callService.findByLineId(2L);
     }
 
     @Test

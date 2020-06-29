@@ -1,13 +1,14 @@
 package com.phones.phones.service;
 
+import com.phones.phones.dto.CityTopDto;
 import com.phones.phones.exception.city.CityAlreadyExistException;
 import com.phones.phones.exception.city.CityDoesNotExistException;
 import com.phones.phones.exception.user.UserDoesNotExistException;
 import com.phones.phones.model.City;
 import com.phones.phones.model.User;
-import com.phones.phones.projection.CityTop;
 import com.phones.phones.repository.CityRepository;
 import com.phones.phones.repository.UserRepository;
+import com.phones.phones.repository.dto.CityTopDtoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +19,14 @@ import java.util.Optional;
 public class CityService {
 
     private final CityRepository cityRepository;
+    private final CityTopDtoRepository cityTopDtoRepository;
     private final UserRepository userRepository;
 
     @Autowired
     public CityService(final CityRepository cityRepository,
-                       final UserRepository userRepository) {
+                       CityTopDtoRepository cityTopDtoRepository, final UserRepository userRepository) {
         this.cityRepository = cityRepository;
+        this.cityTopDtoRepository = cityTopDtoRepository;
         this.userRepository = userRepository;
     }
 
@@ -48,12 +51,21 @@ public class CityService {
         return city.get();
     }
 
-    public List<CityTop> findTopCitiesCallsByUserId(Long id) throws UserDoesNotExistException {
+/*    public List<CityTop> findTopCitiesCallsByUserId(Long id) throws UserDoesNotExistException {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
             throw new UserDoesNotExistException();
         }
         return cityRepository.findCitiesTopByUserId(id);
+    }*/
+
+
+    public List<CityTopDto> findTopCitiesCallsByUserId(Long id) throws UserDoesNotExistException {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new UserDoesNotExistException();
+        }
+        return cityTopDtoRepository.findCitiesTopByUserId(id);
     }
 
 }

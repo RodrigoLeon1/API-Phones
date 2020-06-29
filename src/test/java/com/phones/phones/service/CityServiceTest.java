@@ -1,18 +1,19 @@
 package com.phones.phones.service;
 
 import com.phones.phones.TestFixture;
+import com.phones.phones.dto.CityTopDto;
 import com.phones.phones.exception.city.CityAlreadyExistException;
 import com.phones.phones.exception.city.CityDoesNotExistException;
 import com.phones.phones.exception.user.UserDoesNotExistException;
 import com.phones.phones.model.City;
-import com.phones.phones.projection.CityTop;
+import com.phones.phones.model.User;
 import com.phones.phones.repository.CityRepository;
 import com.phones.phones.repository.UserRepository;
+import com.phones.phones.repository.dto.CityTopDtoRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,10 +31,13 @@ public class CityServiceTest {
     @Mock
     CityRepository cityRepository;
 
+    @Mock
+    CityTopDtoRepository cityTopDtoRepository;
+
     @Before
     public void setUp() {
         initMocks(this);
-        this.cityService = new CityService(cityRepository, userRepository);
+        this.cityService = new CityService(cityRepository, cityTopDtoRepository, userRepository);
     }
 
     @Test
@@ -97,15 +101,29 @@ public class CityServiceTest {
     }
 
     @Test
-    public void testFindTopCitiesCallsByUserId() throws UserDoesNotExistException {
-        List<CityTop> topCities = new ArrayList<>();
-        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(TestFixture.testUser()));
-        when(cityRepository.findCitiesTopByUserId(1L)).thenReturn(topCities);
+    public void testFindTopCitiesCallsByUserIdOk() throws UserDoesNotExistException {
+        List<CityTopDto> topCities = TestFixture.testListOfCityTop();
 
-        List<CityTop> returnedCities = cityService.findTopCitiesCallsByUserId(1L);
+        User loggedUser = TestFixture.testUser();
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(loggedUser));
+        when(cityTopDtoRepository.findCitiesTopByUserId(1L)).thenReturn(topCities);
 
-        assertEquals(topCities.isEmpty(), returnedCities.isEmpty());
-       // assertEquals(topCities.get(0).getName(), returnedCities.get(0).getName());
+        List<CityTopDto> returnedCities = cityService.findTopCitiesCallsByUserId(1L);
+
+
+        assertEquals(topCities.size(), returnedCities.size());
+        assertEquals(topCities.get(0).getName(), returnedCities.get(0).getName());
+        assertEquals(topCities.get(0).getQuantity(), returnedCities.get(0).getQuantity());
+        assertEquals("Capital Federal", returnedCities.get(0).getName());
+        assertEquals(15, returnedCities.get(1).getQuantity());
+    }
+
+    @Test (expected = UserDoesNotExistException.class )
+    public void testFindTopCitiesCallsByUserIdUserDoesNotExistException() throws UserDoesNotExistException {
+        User loggedUser = null;
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(loggedUser));
+
+        cityService.findTopCitiesCallsByUserId(1L);
     }
 
 }
