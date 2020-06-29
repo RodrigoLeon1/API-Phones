@@ -14,6 +14,8 @@ import com.phones.phones.model.Call;
 import com.phones.phones.model.Invoice;
 import com.phones.phones.model.Line;
 import com.phones.phones.model.User;
+import com.phones.phones.utils.RestUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,42 +40,40 @@ public class BackOfficeController {
     }
 
 
-    //return (invoices.size() > 0) ? ResponseEntity.ok(invoices) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    //return ResponseEntity.created(RestUtils.getLocation(newLine.getId())).build();
-    //return ResponseEntity.ok(line);
-    //return ResponseEntity.ok().build();
-    //return (deleted > 0) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    //return deleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
     /* CRUD Clients */
     @PostMapping("/users/")
     public ResponseEntity createUser(@RequestHeader("Authorization") final String sessionToken,
                                      @RequestBody @Valid final User user) throws UsernameAlreadyExistException, UserAlreadyExistException, UserSessionDoesNotExistException {
-        return userController.createUser(sessionToken, user);
+        User newUser = userController.createUser(sessionToken, user);
+        return ResponseEntity.created(RestUtils.getLocation(newUser.getId())).build();
     }
 
     @GetMapping("/users/")
     public ResponseEntity<List<User>> findAllUsers(@RequestHeader("Authorization") final String sessionToken) throws UserSessionDoesNotExistException {
-        return userController.findAllUsers(sessionToken);
+        List<User> users = userController.findAllUsers(sessionToken);
+        return (users.size() > 0) ? ResponseEntity.ok(users) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<User> findUserById(@RequestHeader("Authorization") final String sessionToken,
                                              @PathVariable final Long id) throws UserDoesNotExistException, UserSessionDoesNotExistException {
-        return userController.findUserById(sessionToken, id);
+        User user = userController.findUserById(sessionToken, id);
+        return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity deleteUserById(@RequestHeader("Authorization") final String sessionToken,
                                          @PathVariable final Long id) throws UserDoesNotExistException, UserAlreadyDisableException, UserSessionDoesNotExistException {
-        return userController.deleteUserById(sessionToken, id);
+        boolean deleted = userController.deleteUserById(sessionToken, id);
+        return deleted ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PutMapping("/users/{id}")
     public ResponseEntity updateUserById(@RequestHeader("Authorization") final String sessionToken,
                                          @RequestBody @Valid final UserDto updatedUser,
                                          @PathVariable final Long id) throws UserDoesNotExistException, UsernameAlreadyExistException, UserSessionDoesNotExistException {
-        return userController.updateUserById(sessionToken, updatedUser, id);
+        User user = userController.updateUserById(sessionToken, updatedUser, id);
+        return ResponseEntity.ok().build();
     }
 
 
@@ -81,38 +81,44 @@ public class BackOfficeController {
     @PostMapping("/lines/")
     public ResponseEntity createLine(@RequestHeader("Authorization") String sessionToken,
                                      @RequestBody @Valid final Line line) throws LineNumberAlreadyExistException, UserSessionDoesNotExistException {
-        return lineController.createLine(sessionToken, line);
+        Line newLine = lineController.createLine(sessionToken, line);
+        return ResponseEntity.created(RestUtils.getLocation(newLine.getId())).build();
     }
 
     @GetMapping("/lines/")
     public ResponseEntity<List<Line>> findAllLines(@RequestHeader("Authorization") String sessionToken) throws UserSessionDoesNotExistException {
-        return lineController.findAllLines(sessionToken);
+        List<Line> lines = lineController.findAllLines(sessionToken);
+        return (lines.size() > 0) ? ResponseEntity.ok(lines) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/lines/{id}")
     public ResponseEntity<Line> findLineById(@RequestHeader("Authorization") String sessionToken,
                                              @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
-        return lineController.findLineById(sessionToken, id);
+        Line line = lineController.findLineById(sessionToken, id);
+        return ResponseEntity.ok(line);
     }
 
     @DeleteMapping("/lines/{id}")
     public ResponseEntity deleteLineById(@RequestHeader("Authorization") final String sessionToken,
                                          @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException, LineAlreadyDisabledException {
-        return lineController.deleteLineById(sessionToken, id);
+        int deleted = lineController.deleteLineById(sessionToken, id);
+        return (deleted > 0) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PutMapping("/lines/{id}")
     public ResponseEntity updateLineByIdLine(@RequestHeader("Authorization") final String sessionToken,
                                              @RequestBody @Valid final LineDto updatedLine,
                                              @PathVariable final Long id) throws LineDoesNotExistException, UserSessionDoesNotExistException {
-        return lineController.updateLineByIdLine(sessionToken, updatedLine, id);
+        boolean updated = lineController.updateLineByIdLine(sessionToken, updatedLine, id);
+        return ResponseEntity.ok().build();
     }
 
 
     /* Rates */
     @GetMapping("/rates")
     public ResponseEntity<List<RateDto>> findAllRates(@RequestHeader("Authorization") final String sessionToken) throws UserSessionDoesNotExistException {
-        return rateController.findAllRates(sessionToken);
+        List<RateDto> rates = rateController.findAllRates(sessionToken);
+        return (rates.size() > 0) ? ResponseEntity.ok(rates) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
@@ -120,7 +126,8 @@ public class BackOfficeController {
     @GetMapping("/users/{id}/calls")
     public ResponseEntity<List<Call>> findCallsByUserId(@RequestHeader("Authorization") String sessionToken,
                                                         @PathVariable final Long id) throws UserDoesNotExistException, UserSessionDoesNotExistException {
-        return userController.findCallsByUserId(sessionToken, id);
+        List<Call> calls = userController.findCallsByUserId(sessionToken, id);
+        return (calls.size() > 0) ? ResponseEntity.ok(calls) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
@@ -130,7 +137,8 @@ public class BackOfficeController {
                                                                           @PathVariable final Long id,
                                                                           @RequestParam(name = "from") final String from,
                                                                           @RequestParam(name = "to") final String to) throws ParseException, UserDoesNotExistException, UserSessionDoesNotExistException {
-        return userController.findInvoicesByUserIdBetweenDates(sessionToken, id, from, to);
+        List<Invoice> invoices = userController.findInvoicesByUserIdBetweenDates(sessionToken, id, from, to);
+        return (invoices.size() > 0) ? ResponseEntity.ok(invoices) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
