@@ -275,7 +275,6 @@ END $$
 DELIMITER $$
 CREATE PROCEDURE `sp_invoices_lines`()
 BEGIN
-
     DECLARE vIdLine INT DEFAULT -1;
     DECLARE vFinished INT DEFAULT 0;
 
@@ -293,7 +292,6 @@ END
 $$
 
 DROP PROCEDURE `sp_li_lines`;
-
 DELIMITER $$
 CREATE PROCEDURE `sp_li_lines`(IN vIdLine INT)
 BEGIN
