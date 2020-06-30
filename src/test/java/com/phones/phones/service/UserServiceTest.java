@@ -107,9 +107,19 @@ public class UserServiceTest {
         User disabledUser = TestFixture.testUser();
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(disabledUser));
         when(userRepository.disableById(1L)).thenReturn(1);
-        boolean desabledTrue = userService.disableById(disabledUser.getId());
-        assertEquals(true, desabledTrue);
+        boolean disabled = userService.disableById(disabledUser.getId());
+        assertEquals(true, disabled);
     }
+
+    @Test
+    public void testDisableByIdError() throws UserDoesNotExistException, UserAlreadyDisableException {
+        User disabledUser = TestFixture.testUser();
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(disabledUser));
+        when(userRepository.disableById(1L)).thenReturn(0);
+        boolean disabled = userService.disableById(disabledUser.getId());
+        assertEquals(false, disabled);
+    }
+
 
 
     @Test(expected = UserDoesNotExistException.class)
@@ -127,17 +137,8 @@ public class UserServiceTest {
         this.userService.disableById(1L);
     }
 
-    @Test
-    public void testLoginOk() throws UserInvalidLoginException {
-        User loggedUser = TestFixture.testUser();
-        when(userRepository.findByUsername("rl")).thenReturn(Optional.ofNullable(loggedUser));
-        when(passwordEncoder.matches("123", loggedUser.getPassword())).thenReturn(true);
-        Optional<User> returnedUser = userService.login("rl","123");
 
-        assertEquals(loggedUser.getId(), returnedUser.get().getId());
-        assertEquals(loggedUser.getUsername(), returnedUser.get().getUsername());
-        verify(userRepository, times(1)).findByUsername("rl");
-    }
+
 
     @Test
     public void testUpdateByIdOk() throws UserDoesNotExistException, UsernameAlreadyExistException {
@@ -157,12 +158,82 @@ public class UserServiceTest {
 
     @Test(expected = UserDoesNotExistException.class)
     public void testUpdateByIdOkExistingUser() throws UsernameAlreadyExistException, UserDoesNotExistException {
+
         UserDto newUser = TestFixture.testUserDto();
         when(this.userRepository.findById(1L)).thenReturn(Optional.empty());
         userService.updateById(1L, newUser);
     }
 
+    @Test
+    public void testExistsUsernameOk() {
+        when(userRepository.findByUsernameBoolean("username")).thenReturn(1);
+        boolean exists = userService.existsUsername("username");
+        assertEquals(true, exists);
+    }
 
+    @Test
+    public void testDoesNotExistsUsernameOk() {
+        when(userRepository.findByUsernameBoolean("username")).thenReturn(0);
+        boolean exists = userService.existsUsername("username");
+        assertEquals(false, exists);
+    }
+
+
+
+    public boolean existsUsernameToUpdate(String username, Long id) {
+        return userRepository.findByUsernameToUpdateBoolean(username, id) > 0;
+    }
+    @Test
+    public void existsUsernameToUpdateOk() {
+        when(userRepository.findByUsernameToUpdateBoolean("username", 1L)).thenReturn(1);
+        boolean exists = userService.existsUsernameToUpdate("username", 1L);
+        assertEquals(true, exists);
+    }
+
+    @Test
+    public void testDoesNotExistsUsernameToUpdate() {
+        when(userRepository.findByUsernameBoolean("username")).thenReturn(0);
+        boolean exists = userService.existsUsernameToUpdate("username", 1L);
+        assertEquals(false, exists);
+    }
+
+
+    @Test
+    public void testLoginOk() throws UserInvalidLoginException {
+        User loggedUser = TestFixture.testUser();
+        when(userRepository.findByUsername("rl")).thenReturn(Optional.ofNullable(loggedUser));
+        when(passwordEncoder.matches("123", loggedUser.getPassword())).thenReturn(true);
+        Optional<User> returnedUser = userService.login("rl","123");
+
+        assertEquals(loggedUser.getId(), returnedUser.get().getId());
+        assertEquals(loggedUser.getUsername(), returnedUser.get().getUsername());
+        verify(userRepository, times(1)).findByUsername("rl");
+    }
+
+
+    @Test (expected = UserInvalidLoginException.class)
+    public void testLoginUserInvalidLogin() throws UserInvalidLoginException {
+        User loggedUser = TestFixture.testUser();
+        when(userRepository.findByUsername("rl")).thenReturn(Optional.empty());
+        when(passwordEncoder.matches("123", loggedUser.getPassword())).thenReturn(true);
+        userService.login("rl","123");
+    }
+
+    @Test (expected = UserInvalidLoginException.class)
+    public void testLoginWrongUserAndPass() throws UserInvalidLoginException {
+        User loggedUser = TestFixture.testUser();
+        when(userRepository.findByUsername("rl")).thenReturn(Optional.empty());
+        when(passwordEncoder.matches("123", loggedUser.getPassword())).thenReturn(false);
+        userService.login("rl","123");
+    }
+
+    @Test (expected = UserInvalidLoginException.class)
+    public void testLoginInvalidPass() throws UserInvalidLoginException {
+        User loggedUser = TestFixture.testUser();
+        when(userRepository.findByUsername("rl")).thenReturn(Optional.ofNullable(loggedUser));
+        when(passwordEncoder.matches("123", loggedUser.getPassword())).thenReturn(false);
+        userService.login("rl","123");
+    }
 
 
 }

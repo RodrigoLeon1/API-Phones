@@ -33,15 +33,4 @@ public class InfrastructureController {
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
-
-    /*// arreglar esto, uri incorrecta
-    private URI getLocation(Call call) {
-        String template = "/api/calls";
-        return ServletUriComponentsBuilder
-                .fromUriString(template)
-                .path("/{id}")
-                .buildAndExpand(call.getId())
-                .toUri();
-    }*/
-
 }

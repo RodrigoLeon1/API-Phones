@@ -56,7 +56,7 @@ public class CallServiceTest {
     }
 
     @Test(expected = LineNumberDoesNotExistException.class)
-    public void testCreateDTODestinationNumberDoesNotExistException() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
+    public void testCreateDtoDestinationNumberDoesNotExistException() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
         InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
         Line testOriginLine = TestFixture.testLine(infrastructureCallDto.getOriginNumber());
 
@@ -66,7 +66,7 @@ public class CallServiceTest {
     }
 
     @Test(expected = LineNumberDoesNotExistException.class)
-    public void testCreateDTOOriginNumberDoesNotExistException() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
+    public void testCreateDtoOriginNumberDoesNotExistException() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
         InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
         Line testDestinationLine = TestFixture.testLine(infrastructureCallDto.getDestinationNumber());
 
@@ -76,7 +76,7 @@ public class CallServiceTest {
     }
 
     @Test(expected = LineCannotMakeCallsException.class)
-    public void testCreateDTOOriginDisabled() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
+    public void testCreateDtoOriginDisabled() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
         InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
         Line testDestinationLine = TestFixture.testDisabledLine(infrastructureCallDto.getDestinationNumber());
         Line testOriginLine = TestFixture.testLine(infrastructureCallDto.getOriginNumber());
@@ -87,7 +87,7 @@ public class CallServiceTest {
     }
 
     @Test(expected = LineCannotMakeCallsException.class)
-    public void testCreateDTODestinationDisabled() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
+    public void testCreateDtoDestinationDisabled() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
         InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
         Line testDestinationLine = TestFixture.testLine(infrastructureCallDto.getDestinationNumber());
         Line testOriginLine = TestFixture.testDisabledLine(infrastructureCallDto.getOriginNumber());
@@ -109,10 +109,21 @@ public class CallServiceTest {
     }
 
     @Test(expected = LineCannotMakeCallsException.class)
-    public void testCreateDTODestinationSuspended() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
+    public void testCreateDtoBothSuspended() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
         InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
         Line testOriginLine = TestFixture.testSuspendedLine(infrastructureCallDto.getDestinationNumber());
         Line testDestinationLine = TestFixture.testSuspendedLine(infrastructureCallDto.getOriginNumber());
+
+        when(lineRepository.findByNumber(infrastructureCallDto.getDestinationNumber())).thenReturn(Optional.ofNullable(testDestinationLine));
+        when(lineRepository.findByNumber(infrastructureCallDto.getOriginNumber())).thenReturn(Optional.ofNullable(testOriginLine));
+        this.callService.create(infrastructureCallDto);
+    }
+
+    @Test(expected = LineCannotMakeCallsException.class)
+    public void testCreateDTODestinationSuspended() throws LineNumberDoesNotExistException, LineCannotMakeCallsException {
+        InfrastructureCallDto infrastructureCallDto= TestFixture.testInfrastructureCallDto();
+        Line testOriginLine = TestFixture.testSuspendedLine(infrastructureCallDto.getDestinationNumber());
+        Line testDestinationLine = TestFixture.testLine(infrastructureCallDto.getOriginNumber());
 
         when(lineRepository.findByNumber(infrastructureCallDto.getDestinationNumber())).thenReturn(Optional.ofNullable(testDestinationLine));
         when(lineRepository.findByNumber(infrastructureCallDto.getOriginNumber())).thenReturn(Optional.ofNullable(testOriginLine));

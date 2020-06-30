@@ -194,17 +194,29 @@ public class UserControllerTests {
 
     @Test( expected = ValidationException.class)
     public void findCallsByUserSessionBetweenDatesNullParam() throws UserSessionDoesNotExistException, UserDoesNotExistException, ParseException {
-        User loggedUser = TestFixture.testUser();
-        Date fromDate = null;
-
-        userController.findCallsByUserSessionBetweenDates("123", null, "19/06/2020");
+        userController.findCallsByUserSessionBetweenDates("123", null, null);
     }
+
 
 
     @Test(expected =ValidationException.class)
     public void findCallsByUserSessionBetweenDatesInvalidParam() throws ValidationException, ParseException, UserSessionDoesNotExistException, UserDoesNotExistException {
         String from = null;
         String to = null;
+        userController.findCallsByUserSessionBetweenDates("123", from, to);
+    }
+
+    @Test(expected =ValidationException.class)
+    public void findCallsByUserSessionBetweenDatesInvalidFromParam() throws ValidationException, ParseException, UserSessionDoesNotExistException, UserDoesNotExistException {
+        String from = "05/01/2020";
+        String to = null;
+        userController.findCallsByUserSessionBetweenDates("123", from, to);
+    }
+
+    @Test(expected =ValidationException.class)
+    public void findCallsByUserSessionBetweenDatesInvalidToParam() throws ValidationException, ParseException, UserSessionDoesNotExistException, UserDoesNotExistException {
+        String from = null;
+        String to = "05/01/2020";
         userController.findCallsByUserSessionBetweenDates("123", from, to);
     }
 
@@ -287,6 +299,20 @@ public class UserControllerTests {
         userController.findInvoicesByUserSessionBetweenDates("123", from, to);
     }
 
+    @Test(expected =ValidationException.class)
+    public void findInvoicesByUserSessionBetweenDatesInvalidFromParam() throws ValidationException, ParseException, UserSessionDoesNotExistException, UserDoesNotExistException {
+        String from = "19/06/2020";
+        String to = null;
+        userController.findInvoicesByUserSessionBetweenDates("123", from, to);
+    }
+
+    @Test(expected =ValidationException.class)
+    public void findInvoicesByUserSessionBetweenDatesInvalidToParam() throws ValidationException, ParseException, UserSessionDoesNotExistException, UserDoesNotExistException {
+        String from = null;
+        String to = "19/06/2020";
+        userController.findInvoicesByUserSessionBetweenDates("123", from, to);
+    }
+
 
     /**
      *
@@ -320,6 +346,20 @@ public class UserControllerTests {
     }
 
 
+    @Test(expected =ValidationException.class)
+    public void findInvoicesByUserIdBetweenDatesInvalidFromParam() throws ValidationException, ParseException, UserSessionDoesNotExistException, UserDoesNotExistException {
+        String from = "19/06/2020";
+        String to = null;
+        userController.findInvoicesByUserIdBetweenDates("123", 1L,from, to);
+    }
+
+    @Test(expected =ValidationException.class)
+    public void findInvoicesByUserIdBetweenDatesInvalidToParam() throws ValidationException, ParseException, UserSessionDoesNotExistException, UserDoesNotExistException {
+        String from = null;
+        String to = "19/06/2020";
+        userController.findInvoicesByUserIdBetweenDates("123", 1L,from, to);
+    }
+
     /**
      *
      * findTopCitiesCallsByUserSession
@@ -343,31 +383,6 @@ public class UserControllerTests {
         assertEquals("Capital Federal", returnedCities.get(0).getName());
         assertEquals(15, returnedCities.get(1).getQuantity());
     }
-
-
-
-/*    public ResponseEntity<List<CityTopDto>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {
-        User currentUser = sessionManager.getCurrentUser(sessionToken);
-        List<CityTopDto> citiesTops = cityService.findTopCitiesCallsByUserId(currentUser.getId());
-        return (citiesTops.size() > 0) ? ResponseEntity.ok(citiesTops) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }*/
-
-
-
-/*    @Test
-    public void findTopCitiesCallsByUserSessionNoCallsFound() throws UserSessionDoesNotExistException, UserDoesNotExistException {
-        User loggedUser = TestFixture.testClientUser();
-        List<Line> emptyLines = new ArrayList<>();
-
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(lineService.findByUserId(loggedUser.getId())).thenReturn(emptyLines);
-
-        ResponseEntity<List<Line>> returnedLines = userController.findLinesByUserSession("123");
-
-        assertEquals(response.getStatusCode(), returnedLines.getStatusCode());
-    }*/
-
 
 
     /**
