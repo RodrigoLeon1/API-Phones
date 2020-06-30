@@ -24,6 +24,7 @@ public class InfrastructureController {
         this.callService = callService;
     }
 
+
     @PostMapping("/call")
     public ResponseEntity createCall(@RequestHeader("Authorization") final String sessionToken,
                                      @RequestBody @Valid final InfrastructureCallDto infrastructureCallDto) throws LineNumberDoesNotExistException, LineCannotMakeCallsException, UserInvalidLoginException {
@@ -33,4 +34,5 @@ public class InfrastructureController {
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
+
 }

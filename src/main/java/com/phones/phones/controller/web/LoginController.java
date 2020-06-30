@@ -32,7 +32,7 @@ public class LoginController {
     public ResponseEntity login(@RequestBody final UserLoginDto userLoginDto) throws UserInvalidLoginException, ValidationException {
         ResponseEntity response;
         Optional<User> u = userController.login(userLoginDto.getUsername(), userLoginDto.getPassword());
-        if (u.isEmpty()) {
+        if (u.isEmpty() || !u.get().isActive()) {
             throw new UserInvalidLoginException();
         }
         String token = sessionManager.createSession(u.get());

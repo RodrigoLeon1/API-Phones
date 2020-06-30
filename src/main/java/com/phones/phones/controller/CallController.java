@@ -25,6 +25,7 @@ public class CallController {
         this.sessionManager = sessionManager;
     }
 
+
     public List<Call> findAllCalls(@RequestHeader("Authorization") String sessionToken) throws UserSessionDoesNotExistException {
         User currentUser = sessionManager.getCurrentUser(sessionToken);
         return callService.findAll();

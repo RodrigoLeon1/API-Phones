@@ -3,12 +3,15 @@ package com.phones.phones.repository.dto;
 import com.phones.phones.dto.CityTopDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface CityTopDtoRepository extends JpaRepository<CityTopDto, Long> {
+
     @Query(
-            value = "SELECT c.name, count(c.id) AS quantity FROM cities c " +
+            value = "SELECT c.id, c.name, count(c.id) AS quantity FROM cities c " +
                     "INNER JOIN rates r ON c.id = r.id_city_destination " +
                     "INNER JOIN calls ca ON ca.id_rate = r.id " +
                     "INNER JOIN `lines` l ON ca.id_origin_line = l.id " +
@@ -19,4 +22,5 @@ public interface CityTopDtoRepository extends JpaRepository<CityTopDto, Long> {
             nativeQuery = true
     )
     List<CityTopDto> findCitiesTopByUserId(Long id);
+
 }

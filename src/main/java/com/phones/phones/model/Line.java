@@ -41,7 +41,7 @@ public class Line {
     private LineType lineType;
 
     @NotNull
-    @JsonBackReference(value="userLine")
+    @JsonBackReference(value = "userLine")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user", nullable = false)
     private User user;

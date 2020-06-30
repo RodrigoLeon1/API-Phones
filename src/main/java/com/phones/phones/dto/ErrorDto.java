@@ -15,4 +15,5 @@ public class ErrorDto {
 
     @JsonProperty
     private String description;
+
 }

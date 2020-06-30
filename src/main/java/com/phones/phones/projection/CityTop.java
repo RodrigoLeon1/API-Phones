@@ -5,5 +5,4 @@ public interface CityTop {
     String getName();
     Long getQuantity();
 
-
 }

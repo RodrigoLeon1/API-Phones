@@ -19,5 +19,6 @@ public class UserDto {
     private String password;
     private City city;
     private Set<UserRole> userRoles;
+    private boolean active;
 
 }

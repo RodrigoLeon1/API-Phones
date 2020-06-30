@@ -80,6 +80,7 @@ public class UserService {
 
         user.get().setCity(updatedUser.getCity());
         user.get().setUserRoles(updatedUser.getUserRoles());
+        user.get().setActive(updatedUser.isActive());
 
         return userRepository.save(user.get());
     }
