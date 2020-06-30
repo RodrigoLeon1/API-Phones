@@ -10,10 +10,7 @@ import com.phones.phones.session.SessionManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,25 +43,12 @@ public class CallControllerTest {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(callService.findAll()).thenReturn(listOfCalls);
 
-        ResponseEntity<List<Call>> returnedCalls = callController.findAllCalls("123");
+       List<Call> returnedCalls = callController.findAllCalls("123");
 
-        assertEquals(testCalls.size(), returnedCalls.getBody().size());
-        assertEquals(testCalls.get(0).getOriginNumber(), returnedCalls.getBody().get(0).getOriginNumber());
+        assertEquals(testCalls.size(), returnedCalls.size());
+        assertEquals(testCalls.get(0).getOriginNumber(), returnedCalls.get(0).getOriginNumber());
     }
 
-
-    @Test
-    public void findAllCallsNoCallsDone() throws UserSessionDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<Call> emptyCalls = new ArrayList<>();
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(callService.findAll()).thenReturn(emptyCalls);
-
-        ResponseEntity<List<Call>> returnedCalls = callController.findAllCalls("123");
-
-        assertEquals(response.getStatusCode(), returnedCalls.getStatusCode());
-    }
 
     @Test
     public void findAllCallByIdOk() throws UserSessionDoesNotExistException, CallDoesNotExistException {
@@ -74,12 +58,12 @@ public class CallControllerTest {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(callService.findById(1L)).thenReturn(call);
 
-        ResponseEntity<Call> returnedCall = callController.findCallById("123", 1L);
+        Call returnedCall = callController.findCallById("123", 1L);
 
-        assertEquals(call.getId(), returnedCall.getBody().getId());
-        assertEquals(call.getDuration(), returnedCall.getBody().getDuration());
-        assertEquals(call.getOriginLine(), returnedCall.getBody().getOriginLine());
-        assertEquals(1L, returnedCall.getBody().getId());
+        assertEquals(call.getId(), returnedCall.getId());
+        assertEquals(call.getDuration(), returnedCall.getDuration());
+        assertEquals(call.getOriginLine(), returnedCall.getOriginLine());
+        assertEquals(1L, returnedCall.getId());
     }
 
 }

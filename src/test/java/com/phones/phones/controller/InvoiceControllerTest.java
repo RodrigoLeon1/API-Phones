@@ -10,10 +10,7 @@ import com.phones.phones.session.SessionManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,26 +40,13 @@ public class InvoiceControllerTest {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(invoiceService.findAll()).thenReturn(listOfInvoices);
 
-        ResponseEntity<List<Invoice>> returnedInvoices = invoiceController.findAllInvoices("123");
+        List<Invoice> returnedInvoices = invoiceController.findAllInvoices("123");
 
-        assertEquals(listOfInvoices.size(), returnedInvoices.getBody().size());
-        assertEquals(listOfInvoices.get(0).getDueDate(), returnedInvoices.getBody().get(0).getDueDate());
-        assertEquals(listOfInvoices.get(1).getNumberCalls(), returnedInvoices.getBody().get(1).getNumberCalls());
+        assertEquals(listOfInvoices.size(), returnedInvoices.size());
+        assertEquals(listOfInvoices.get(0).getDueDate(), returnedInvoices.get(0).getDueDate());
+        assertEquals(listOfInvoices.get(1).getNumberCalls(), returnedInvoices.get(1).getNumberCalls());
     }
 
-
-    @Test
-    public void findAllInvoicesNoInvoiceFound() throws UserSessionDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<Invoice> emptyList = new ArrayList<>();
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(invoiceService.findAll()).thenReturn(emptyList);
-
-        ResponseEntity<List<Invoice>> returnedInvoices = invoiceController.findAllInvoices("123");
-
-        assertEquals(response.getStatusCode(), returnedInvoices.getStatusCode());
-    }
 
     @Test
     public void findInvoiceByIdOk() throws UserSessionDoesNotExistException, InvoiceDoesNotExistException {
@@ -72,14 +56,12 @@ public class InvoiceControllerTest {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(invoiceService.findById(1L)).thenReturn(invoice);
 
-        ResponseEntity<Invoice> returnedInvoices = invoiceController.findInvoiceById("123", 1L);
+        Invoice returnedInvoices = invoiceController.findInvoiceById("123", 1L);
 
-        assertEquals(invoice.getId(), returnedInvoices.getBody().getId());
-        assertEquals(invoice.getDueDate(), returnedInvoices.getBody().getDueDate());
-        assertEquals(invoice.getNumberCalls(), returnedInvoices.getBody().getNumberCalls());
-        assertEquals(1L, returnedInvoices.getBody().getId());
+        assertEquals(invoice.getId(), returnedInvoices.getId());
+        assertEquals(invoice.getDueDate(), returnedInvoices.getDueDate());
+        assertEquals(invoice.getNumberCalls(), returnedInvoices.getNumberCalls());
+        assertEquals(1L, returnedInvoices.getId());
     }
 
-
-    /**todo getLocation*/
 }

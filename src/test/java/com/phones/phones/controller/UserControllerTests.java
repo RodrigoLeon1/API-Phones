@@ -10,22 +10,13 @@ import com.phones.phones.model.Line;
 import com.phones.phones.model.User;
 import com.phones.phones.service.*;
 import com.phones.phones.session.SessionManager;
-import com.phones.phones.utils.RestUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import javax.validation.ValidationException;
-import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,9 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-
-@PrepareForTest(RestUtils.class)
-@RunWith(PowerMockRunner.class)
 public class UserControllerTests {
     UserController userController;
 
@@ -57,7 +45,6 @@ public class UserControllerTests {
     @Before
     public void setUp() {
         initMocks(this);
-        PowerMockito.mockStatic(RestUtils.class);
         userController = new UserController(userService, callService, lineService, cityService, invoiceService, sessionManager);
     }
 
@@ -69,13 +56,13 @@ public class UserControllerTests {
 
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(userService.create(newUser)).thenReturn(newUser);
-        when(RestUtils.getLocation(newUser.getId())).thenReturn(URI.create("miUri.com"));
 
-        ResponseEntity response = userController.createUser("123", newUser);
+        User createdUser = userController.createUser("123", newUser);
 
-        assertEquals(URI.create("miUri.com"), response.getHeaders().getLocation());
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(loggedUser.getName(), createdUser.getName());
+        assertEquals(loggedUser.getDni(), createdUser.getDni());
     }
+
 
 
     /**
@@ -92,27 +79,11 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(userService.findAll()).thenReturn(users);
 
-        ResponseEntity<List<User>> dbUsers = userController.findAllUsers("123");
+        List<User> returnedUsers = userController.findAllUsers("123");
 
-        assertEquals(users.size(), dbUsers.getBody().size());
-        assertEquals(users.get(0).getDni(), dbUsers.getBody().get(0).getDni());
+        assertEquals(users.size(), returnedUsers.size());
+        assertEquals(users.get(0).getDni(), returnedUsers.get(0).getDni());
     }
-
-
-    @Test
-    public void findAllUsersNoUsersFound() throws UserSessionDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<User> noUsers = new ArrayList<>();
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(userService.findAll()).thenReturn(noUsers);
-
-        ResponseEntity<List<User>> returnedUsers = userController.findAllUsers("123");
-
-        assertEquals(response.getStatusCode(), returnedUsers.getStatusCode());
-    }
-
-
 
     /**
      *
@@ -128,12 +99,12 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(userService.findById(1L)).thenReturn(user);
 
-        ResponseEntity<User> returnedUser = userController.findUserById("123", 1L);
+        User returnedUser = userController.findUserById("123", 1L);
 
-        assertEquals(user.getId(), returnedUser.getBody().getId());
-        assertEquals(user.getDni(), returnedUser.getBody().getDni());
-        assertEquals(user.getSurname(), returnedUser.getBody().getSurname());
-        assertEquals(1L, returnedUser.getBody().getId());
+        assertEquals(user.getId(), returnedUser.getId());
+        assertEquals(user.getDni(), returnedUser.getDni());
+        assertEquals(user.getSurname(), returnedUser.getSurname());
+        assertEquals(1L, returnedUser.getId());
     }
 
     /**
@@ -149,22 +120,9 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(userService.disableById(1L)).thenReturn(true);
 
-        ResponseEntity deleted = userController.deleteUserById("123", 1L);
+        Boolean deleted = userController.deleteUserById("123", 1L);
 
-        assertEquals(ResponseEntity.ok().build(), deleted);
-    }
-
-
-    @Test
-    public void deleteUserByIdBadRequest() throws UserSessionDoesNotExistException, UserDoesNotExistException, UserAlreadyDisableException {
-        User loggedUser = TestFixture.testUser();
-
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(userService.disableById(1L)).thenReturn(false);
-
-        ResponseEntity deleted = userController.deleteUserById("123", 1L);
-
-        assertEquals(HttpStatus.BAD_REQUEST, deleted.getStatusCode());
+        assertEquals(true, deleted);
     }
 
     /**
@@ -183,9 +141,10 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(userService.updateById(1L, userUpdate)).thenReturn(updatedUser);
 
-        ResponseEntity updated = userController.updateUserById("123", userUpdate, 1L);
+        User updated = userController.updateUserById("123", userUpdate, 1L);
 
-        assertEquals(ResponseEntity.ok().build(), updated);
+        assertEquals(updatedUser.getName(), updated.getName());
+        assertEquals(updatedUser.getDni(), updated.getDni());
     }
 
 
@@ -205,26 +164,11 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(callService.findByUserId(1L)).thenReturn(testCalls);
 
-        ResponseEntity<List<Call>> returnedCalls = userController.findCallsByUserId("123", 1L);
+        List<Call> returnedCalls = userController.findCallsByUserId("123", 1L);
 
-        assertEquals(testCalls.size(), returnedCalls.getBody().size());
-        assertEquals(testCalls.get(0).getOriginNumber(), returnedCalls.getBody().get(0).getOriginNumber());
+        assertEquals(testCalls.size(), returnedCalls.size());
+        assertEquals(testCalls.get(0).getOriginNumber(), returnedCalls.get(0).getOriginNumber());
     }
-
-    @Test
-    public void findAllCallsByUserIdNoCallsDone() throws UserSessionDoesNotExistException, UserDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<Call> emptyCalls = new ArrayList<>();
-
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(callService.findByUserId(1L)).thenReturn(emptyCalls);
-
-        ResponseEntity<List<Call>> returnedCalls = userController.findCallsByUserId("123", 1L);
-
-        assertEquals(response.getStatusCode(), returnedCalls.getStatusCode());
-    }
-
 
     /**
      *
@@ -242,10 +186,10 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(callService.findByUserIdBetweenDates(1L, fromDate, toDate)).thenReturn(testCalls);
 
-        ResponseEntity<List<Call>> returnedCalls = userController.findCallsByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020");
+        List<Call> returnedCalls = userController.findCallsByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020");
 
-        assertEquals(testCalls.size(), returnedCalls.getBody().size());
-        assertEquals(testCalls.get(0).getOriginNumber(), returnedCalls.getBody().get(0).getOriginNumber());
+        assertEquals(testCalls.size(), returnedCalls.size());
+        assertEquals(testCalls.get(0).getOriginNumber(), returnedCalls.get(0).getOriginNumber());
     }
 
     @Test( expected = ValidationException.class)
@@ -255,25 +199,6 @@ public class UserControllerTests {
 
         userController.findCallsByUserSessionBetweenDates("123", null, "19/06/2020");
     }
-
-
-
-    @Test
-    public void findCallsByUserSessionBetweenDatesNoCallsFound() throws UserSessionDoesNotExistException, UserDoesNotExistException, ParseException {
-        User loggedUser = TestFixture.testUser();
-        List<Call> emptyCalls = new ArrayList<>();
-        Date fromDate = new SimpleDateFormat("dd/MM/yyyy").parse("05/01/2020");
-        Date toDate = new SimpleDateFormat("dd/MM/yyyy").parse("19/06/2020");
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(callService.findByUserIdBetweenDates(1L, fromDate, toDate)).thenReturn(emptyCalls);
-
-        ResponseEntity<List<Call>> returnedCalls = userController.findCallsByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020");
-
-        assertEquals(response.getStatusCode(), returnedCalls.getStatusCode());
-    }
-
 
 
     @Test(expected =ValidationException.class)
@@ -299,30 +224,14 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(lineService.findByUserId(1L)).thenReturn(testLines);
 
-        ResponseEntity<List<Line>> returnedCalls = userController.findLinesByUserId("123", 1L);
+        List<Line> returnedCalls = userController.findLinesByUserId("123", 1L);
 
-        assertEquals(testLines.size(), returnedCalls.getBody().size());
-        assertEquals(testLines.get(0).getUser(), returnedCalls.getBody().get(0). getUser());
-        assertEquals(testLines.get(0).getUser().getUsername(), returnedCalls.getBody().get(0). getUser().getUsername());
-        assertEquals("rl", returnedCalls.getBody().get(0). getUser().getUsername());
-        assertEquals("404040", returnedCalls.getBody().get(0). getUser().getDni());
+        assertEquals(testLines.size(), returnedCalls.size());
+        assertEquals(testLines.get(0).getUser(), returnedCalls.get(0). getUser());
+        assertEquals(testLines.get(0).getUser().getUsername(), returnedCalls.get(0). getUser().getUsername());
+        assertEquals("rl", returnedCalls.get(0). getUser().getUsername());
+        assertEquals("404040", returnedCalls.get(0). getUser().getDni());
     }
-
-
-    @Test
-    public void findLinesByUserIdNoLinesFound() throws UserSessionDoesNotExistException, UserDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<Line> emptyLines = new ArrayList<>();
-
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(lineService.findByUserId(1L)).thenReturn(emptyLines);
-
-        ResponseEntity<List<Line>> returnedLines = userController.findLinesByUserId("123", 1L);
-
-        assertEquals(response.getStatusCode(), returnedLines.getStatusCode());
-    }
-
 
     /**
      *
@@ -339,31 +248,14 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(lineService.findByUserId(loggedUser.getId())).thenReturn(testLines);
 
-        ResponseEntity<List<Line>> returnedLines = userController.findLinesByUserSession("123");
+        List<Line> returnedLines = userController.findLinesByUserSession("123");
 
-        assertEquals(testLines.size(), returnedLines.getBody().size());
-        assertEquals(testLines.get(0).getUser(), returnedLines.getBody().get(0). getUser());
-        assertEquals(testLines.get(0).getUser().getUsername(), returnedLines.getBody().get(0). getUser().getUsername());
-        assertEquals("rl", returnedLines.getBody().get(0). getUser().getUsername());
-        assertEquals("404040", returnedLines.getBody().get(0). getUser().getDni());
+        assertEquals(testLines.size(), returnedLines.size());
+        assertEquals(testLines.get(0).getUser(), returnedLines.get(0). getUser());
+        assertEquals(testLines.get(0).getUser().getUsername(), returnedLines.get(0). getUser().getUsername());
+        assertEquals("rl", returnedLines.get(0). getUser().getUsername());
+        assertEquals("404040", returnedLines.get(0). getUser().getDni());
     }
-
-
-    @Test
-    public void findLinesByUserSessionNoLinesFound() throws UserSessionDoesNotExistException, UserDoesNotExistException {
-        User loggedUser = TestFixture.testClientUser();
-        List<Line> emptyLines = new ArrayList<>();
-
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(lineService.findByUserId(loggedUser.getId())).thenReturn(emptyLines);
-
-        ResponseEntity<List<Line>> returnedLines = userController.findLinesByUserSession("123");
-
-        assertEquals(response.getStatusCode(), returnedLines.getStatusCode());
-    }
-
-
 
     /**
      *
@@ -381,30 +273,11 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(invoiceService.findByUserIdBetweenDates(loggedUser.getId(), fromDate, toDate)).thenReturn(testInvoices);
 
-        ResponseEntity<List<Invoice>> returnedInvoices = userController.findInvoicesByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020");
+        List<Invoice> returnedInvoices = userController.findInvoicesByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020");
 
-        assertEquals(testInvoices.size(), returnedInvoices.getBody().size());
-        assertEquals(testInvoices.get(0).getTotalPrice(), returnedInvoices.getBody().get(0).getTotalPrice());
+        assertEquals(testInvoices.size(), returnedInvoices.size());
+        assertEquals(testInvoices.get(0).getTotalPrice(), returnedInvoices.get(0).getTotalPrice());
     }
-
-
-
-    @Test
-    public void findInvoicesByUserSessionBetweenDatesNoInvoicesFound() throws UserSessionDoesNotExistException, UserDoesNotExistException, ParseException {
-        User loggedUser = TestFixture.testUser();
-        List<Invoice> emptyInvoiceList = new ArrayList<>();
-        Date fromDate = new SimpleDateFormat("dd/MM/yyyy").parse("05/01/2020");
-        Date toDate = new SimpleDateFormat("dd/MM/yyyy").parse("19/06/2020");
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(invoiceService.findByUserIdBetweenDates(loggedUser.getId(), fromDate, toDate)).thenReturn(emptyInvoiceList);
-
-        ResponseEntity<List<Invoice>> returnedInvoices = userController.findInvoicesByUserSessionBetweenDates("123", "05/01/2020", "19/06/2020");
-
-        assertEquals(response.getStatusCode(), returnedInvoices.getStatusCode());
-    }
-
 
 
     @Test(expected =ValidationException.class)
@@ -431,29 +304,12 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(invoiceService.findByUserIdBetweenDates(1L, fromDate, toDate)).thenReturn(testInvoices);
 
-        ResponseEntity<List<Invoice>> returnedInvoices = userController.findInvoicesByUserIdBetweenDates("123", 1L,"05/01/2020", "19/06/2020");
+        List<Invoice> returnedInvoices = userController.findInvoicesByUserIdBetweenDates("123", 1L,"05/01/2020", "19/06/2020");
 
-        assertEquals(testInvoices.size(), returnedInvoices.getBody().size());
-        assertEquals(testInvoices.get(0).getTotalPrice(), returnedInvoices.getBody().get(0).getTotalPrice());
+        assertEquals(testInvoices.size(), returnedInvoices.size());
+        assertEquals(testInvoices.get(0).getTotalPrice(), returnedInvoices.get(0).getTotalPrice());
     }
 
-
-
-    @Test
-    public void findInvoicesByUserIdBetweenDatesNoInvoicesFound() throws UserSessionDoesNotExistException, UserDoesNotExistException, ParseException {
-        User loggedUser = TestFixture.testUser();
-        List<Invoice> emptyInvoiceList = new ArrayList<>();
-        Date fromDate = new SimpleDateFormat("dd/MM/yyyy").parse("05/01/2020");
-        Date toDate = new SimpleDateFormat("dd/MM/yyyy").parse("19/06/2020");
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(invoiceService.findByUserIdBetweenDates(1L, fromDate, toDate)).thenReturn(emptyInvoiceList);
-
-        ResponseEntity<List<Invoice>> returnedInvoices = userController.findInvoicesByUserIdBetweenDates("123", 1L,"05/01/2020", "19/06/2020");
-
-        assertEquals(response.getStatusCode(), returnedInvoices.getStatusCode());
-    }
 
 
     @Test(expected =ValidationException.class)
@@ -479,31 +335,15 @@ public class UserControllerTests {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(cityService.findTopCitiesCallsByUserId(loggedUser.getId())).thenReturn(testCities);
 
-        ResponseEntity<List<CityTopDto>> returnedCities = userController.findTopCitiesCallsByUserSession("123");
+        List<CityTopDto> returnedCities = userController.findTopCitiesCallsByUserSession("123");
 
-        assertEquals(testCities.size(), returnedCities.getBody().size());
-        assertEquals(testCities.get(0).getName(), returnedCities.getBody().get(0).getName());
-        assertEquals(testCities.get(0).getQuantity(), returnedCities.getBody().get(0).getQuantity());
-        assertEquals("Capital Federal", returnedCities.getBody().get(0).getName());
-        assertEquals(15, returnedCities.getBody().get(1).getQuantity());
+        assertEquals(testCities.size(), returnedCities.size());
+        assertEquals(testCities.get(0).getName(), returnedCities.get(0).getName());
+        assertEquals(testCities.get(0).getQuantity(), returnedCities.get(0).getQuantity());
+        assertEquals("Capital Federal", returnedCities.get(0).getName());
+        assertEquals(15, returnedCities.get(1).getQuantity());
     }
 
-
-    @Test
-    public void findTopCitiesCallsByUserSessionNoContent() throws UserSessionDoesNotExistException, UserDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<CityTopDto> testCities = new ArrayList<>();
-
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(cityService.findTopCitiesCallsByUserId(loggedUser.getId())).thenReturn(testCities);
-
-        ResponseEntity<List<CityTopDto>> returnedCities = userController.findTopCitiesCallsByUserSession("123");
-
-        assertEquals(HttpStatus.NO_CONTENT, returnedCities.getStatusCode());
-
-
-
-    }
 
 
 /*    public ResponseEntity<List<CityTopDto>> findTopCitiesCallsByUserSession(@RequestHeader("Authorization") final String sessionToken) throws UserDoesNotExistException, UserSessionDoesNotExistException {

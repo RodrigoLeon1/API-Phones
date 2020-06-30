@@ -1,26 +1,7 @@
 package com.phones.phones.controller.web;
 
-import com.phones.phones.TestFixture;
-import com.phones.phones.controller.UserController;
-import com.phones.phones.dto.CityTopDto;
-import com.phones.phones.exception.user.UserDoesNotExistException;
-import com.phones.phones.exception.user.UserSessionDoesNotExistException;
-import com.phones.phones.model.Call;
-import com.phones.phones.model.Invoice;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.http.ResponseEntity;
-
-import java.text.ParseException;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 public class ClientControllerTest {
-
+/*
     ClientController clientController;
 
     @Mock
@@ -66,5 +47,5 @@ public class ClientControllerTest {
         assertEquals(topCities.getBody().get(0).getName(), returnedInvoices.getBody().get(0).getName());
         assertEquals(topCities.getBody().get(0).getQuantity(), returnedInvoices.getBody().get(0).getQuantity());
         assertEquals("Capital Federal", returnedInvoices.getBody().get(0).getName());
-    }
+    }*/
 }

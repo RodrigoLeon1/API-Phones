@@ -1,6 +1,5 @@
 package com.phones.phones.controller;
 
-import com.phones.phones.utils.RestUtils;
 import com.phones.phones.TestFixture;
 import com.phones.phones.exception.city.CityAlreadyExistException;
 import com.phones.phones.exception.city.CityDoesNotExistException;
@@ -11,24 +10,14 @@ import com.phones.phones.service.CityService;
 import com.phones.phones.session.SessionManager;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@PrepareForTest(RestUtils.class)
-@RunWith(PowerMockRunner.class)
 public class CityControllerTest {
 
     CityController cityController;
@@ -42,7 +31,6 @@ public class CityControllerTest {
     @Before
     public void setUp() {
         initMocks(this);
-        PowerMockito.mockStatic(RestUtils.class);
         cityController = new CityController(cityService, sessionManager);
     }
 
@@ -53,12 +41,12 @@ public class CityControllerTest {
 
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(cityService.create(newCity)).thenReturn(newCity);
-        when(RestUtils.getLocation(newCity.getId())).thenReturn(URI.create("miUri.com"));
 
-        ResponseEntity response = cityController.createCity("123", newCity);
 
-        assertEquals(URI.create("miUri.com"), response.getHeaders().getLocation());
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        City createdCity = cityController.createCity("123", newCity);
+
+        assertEquals(newCity.getProvince(), createdCity.getProvince());
+        assertEquals(newCity.getName(), createdCity.getName());
     }
 
 
@@ -71,26 +59,13 @@ public class CityControllerTest {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(cityService.findAll()).thenReturn(listOfCities);
 
-        ResponseEntity<List<City>> returnedCities = cityController.findAllCities("123");
+        List<City> returnedCities = cityController.findAllCities("123");
 
-        assertEquals(listOfCities.size(), returnedCities.getBody().size());
-        assertEquals(listOfCities.get(0).getName(), returnedCities.getBody().get(0).getName());
-        assertEquals(listOfCities.get(0).getPrefix(), returnedCities.getBody().get(0).getPrefix());
+        assertEquals(listOfCities.size(), returnedCities.size());
+        assertEquals(listOfCities.get(0).getName(), returnedCities.get(0).getName());
+        assertEquals(listOfCities.get(0).getPrefix(), returnedCities.get(0).getPrefix());
     }
 
-
-    @Test
-    public void findAllCitiesNoCitiesFound() throws UserSessionDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<City> emptyList = new ArrayList<>();
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(cityService.findAll()).thenReturn(emptyList);
-
-        ResponseEntity<List<City>> returnedCities = cityController.findAllCities("123");
-
-        assertEquals(response.getStatusCode(), returnedCities.getStatusCode());
-    }
 
     @Test
     public void findCityByIdOk() throws UserSessionDoesNotExistException, CityDoesNotExistException {
@@ -100,12 +75,12 @@ public class CityControllerTest {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(cityService.findById(1L)).thenReturn(city);
 
-        ResponseEntity<City> returnedCity = cityController.findCityById("123", 1L);
+        City returnedCity = cityController.findCityById("123", 1L);
 
-        assertEquals(city.getId(), returnedCity.getBody().getId());
-        assertEquals(city.getPrefix(), returnedCity.getBody().getPrefix());
-        assertEquals(city.getProvince(), returnedCity.getBody().getProvince());
-        assertEquals(1L, returnedCity.getBody().getId());
+        assertEquals(city.getId(), returnedCity.getId());
+        assertEquals(city.getPrefix(), returnedCity.getPrefix());
+        assertEquals(city.getProvince(), returnedCity.getProvince());
+        assertEquals(1L, returnedCity.getId());
     }
 
 

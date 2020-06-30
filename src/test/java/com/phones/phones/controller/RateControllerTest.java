@@ -9,10 +9,7 @@ import com.phones.phones.session.SessionManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,25 +40,11 @@ public class RateControllerTest {
         when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
         when(rateService.findAll()).thenReturn(listOfRates);
 
-        ResponseEntity<List<RateDto>> returnedRates = rateController.findAllRates("123");
+        List<RateDto> returnedRates = rateController.findAllRates("123");
 
-        assertEquals(listOfRates.size(), returnedRates.getBody().size());
-        assertEquals(listOfRates.get(0).getDestinationCity(), returnedRates.getBody().get(0).getDestinationCity());
-        assertEquals(listOfRates.get(1).getDestinationCity(), returnedRates.getBody().get(1).getDestinationCity());
-        assertEquals(listOfRates.get(1).getPriceMinute(), returnedRates.getBody().get(1).getPriceMinute());
-    }
-
-
-    @Test
-    public void findAllRatesNoRatesFound() throws UserSessionDoesNotExistException {
-        User loggedUser = TestFixture.testUser();
-        List<RateDto> emptyList = new ArrayList<>();
-        ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        when(sessionManager.getCurrentUser("123")).thenReturn(loggedUser);
-        when(rateService.findAll()).thenReturn(emptyList);
-
-        ResponseEntity<List<RateDto>> returnedRates = rateController.findAllRates("123");
-
-        assertEquals(response.getStatusCode(), returnedRates.getStatusCode());
+        assertEquals(listOfRates.size(), returnedRates.size());
+        assertEquals(listOfRates.get(0).getDestinationCity(), returnedRates.get(0).getDestinationCity());
+        assertEquals(listOfRates.get(1).getDestinationCity(), returnedRates.get(1).getDestinationCity());
+        assertEquals(listOfRates.get(1).getPriceMinute(), returnedRates.get(1).getPriceMinute());
     }
 }

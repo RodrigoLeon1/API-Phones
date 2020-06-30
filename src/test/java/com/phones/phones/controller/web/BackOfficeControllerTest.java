@@ -1,3 +1,4 @@
+/*
 package com.phones.phones.controller.web;
 
 import com.phones.phones.TestFixture;
@@ -43,10 +44,12 @@ public class BackOfficeControllerTest {
     }
 
 
-    /**
+    */
+/**
      *
      * USER ENDPOINTS
-     * */
+     * *//*
+
 
 
     @Test
@@ -134,10 +137,12 @@ public class BackOfficeControllerTest {
 
 
 
-    /**
+    */
+/**
      *
      * LINE ENDPOINTS
-     * */
+     * *//*
+
 
     @Test
     public void createLineOk() throws LineNumberAlreadyExistException, UserSessionDoesNotExistException {
@@ -196,10 +201,12 @@ public class BackOfficeControllerTest {
     }
 
 
-    /**
+    */
+/**
      *
      * RATE ENDPOINTS
-     * */
+     * *//*
+
 
     @Test
     public void findAllRatesOk() throws UserSessionDoesNotExistException {
@@ -213,10 +220,12 @@ public class BackOfficeControllerTest {
     }
 
 
-    /**
+    */
+/**
      *
      * CALL ENDPOINTS
-     * */
+     * *//*
+
 
     @Test
     public void findCallsByUserIdOk() throws UserSessionDoesNotExistException, UserDoesNotExistException {
@@ -241,10 +250,12 @@ public class BackOfficeControllerTest {
     }
 
 
-    /**
+    */
+/**
      *
      * INVOICE ENDPOINT
-     * */
+     * *//*
+
     @Test
     public void findInvoicesByUserIdBetweenDatesOk() throws UserSessionDoesNotExistException, UserDoesNotExistException, ParseException {
         ResponseEntity<List<Invoice>> invoices = ResponseEntity.ok(TestFixture.testListOfInvoices());
@@ -256,3 +267,4 @@ public class BackOfficeControllerTest {
         assertEquals(1L, returnedInvoices.getBody().get(0).getId());
     }
 }
+*/
